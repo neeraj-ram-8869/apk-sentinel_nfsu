@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 
-const VT_API_KEY = process.env.VIRUSTOTAL_API_KEY || "";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const hash = searchParams.get("hash");
+  const VT_API_KEY = process.env.VIRUSTOTAL_API_KEY || "";
 
   if (!hash) {
     return NextResponse.json({ error: "No hash provided" }, { status: 400 });
@@ -48,6 +48,7 @@ export async function POST(request: Request) {
   try {
     const formData = await request.formData();
     const file = formData.get("file") as Blob;
+    const VT_API_KEY = process.env.VIRUSTOTAL_API_KEY || "";
 
     if (!file) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });

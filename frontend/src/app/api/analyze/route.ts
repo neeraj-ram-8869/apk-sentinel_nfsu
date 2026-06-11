@@ -10,13 +10,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { buildThreatNarrativePrompt, buildChatResponsePrompt, SYSTEM_PROMPT } from "@/lib/ai/prompts";
 
-const NVIDIA_BASE_URL = process.env.NVIDIA_BASE_URL ?? "https://integrate.api.nvidia.com/v1";
-const NVIDIA_API_KEY  = process.env.NVIDIA_API_KEY  ?? "";
-const NVIDIA_MODEL    = process.env.NVIDIA_MODEL    ?? "meta/llama-3.1-70b-instruct";
 
-const KEY_CONFIGURED =
-  Boolean(NVIDIA_API_KEY) &&
-  NVIDIA_API_KEY !== "your_nvidia_api_key_here";
 
 export interface AnalyzeRequestBody {
   mode: "narrative" | "chat";
@@ -58,6 +52,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     body.mode === "chat"
       ? buildChatResponsePrompt(body.payload as ChatPayload)
       : buildThreatNarrativePrompt(body.payload as NarrativePayload);
+
+  const NVIDIA_BASE_URL = process.env.NVIDIA_BASE_URL ?? "https://integrate.api.nvidia.com/v1";
+  const NVIDIA_API_KEY  = process.env.NVIDIA_API_KEY  ?? "";
+  const NVIDIA_MODEL    = process.env.NVIDIA_MODEL    ?? "meta/llama-3.1-8b-instruct";
+
+  const KEY_CONFIGURED = Boolean(NVIDIA_API_KEY) && NVIDIA_API_KEY !== "your_nvidia_api_key_here";
 
   // ── No key configured ─────────────────────────────────────────────
   if (!KEY_CONFIGURED) {
