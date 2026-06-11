@@ -197,6 +197,14 @@ export function generateThreatReport(p: ReportProfile): void {
 
   for (let i = 0; i < Math.min(dangerous.length, 8); i++) {
     const perm = dangerous[i];
+    const detailLines = doc.splitTextToSize(perm.details, 158);
+    const itemHeight = 6 + detailLines.length * 4;
+    
+    if (y + itemHeight > 270) {
+      doc.addPage();
+      y = 20;
+    }
+
     const [r, g, b] = perm.status === "critical" ? [220, 38, 38] : [217, 119, 6];
     doc.setFillColor(r, g, b);
     doc.circle(17, y + 2.5, 1.5, "F");
@@ -208,13 +216,8 @@ export function generateThreatReport(p: ReportProfile): void {
     doc.setFont("helvetica", "normal");
     doc.setFontSize(7.5);
     doc.setTextColor(100, 116, 139);
-    const detailLines = doc.splitTextToSize(perm.details, 158);
     doc.text(detailLines, 21, y + 8);
-    y += 6 + detailLines.length * 4;
-    if (y > 265) {
-      doc.addPage();
-      y = 20;
-    }
+    y += itemHeight;
   }
   y += 4;
 
@@ -228,6 +231,14 @@ export function generateThreatReport(p: ReportProfile): void {
 
   for (let i = 0; i < Math.min(p.keyFindings.length, 8); i++) {
     const finding = p.keyFindings[i];
+    const detailLines = doc.splitTextToSize(finding.details, 180);
+    const itemHeight = 14 + detailLines.length * 4 + 3;
+
+    if (y + itemHeight > 270) {
+      doc.addPage();
+      y = 20;
+    }
+
     const [r, g, b] = severityRgb(finding.severity);
 
     doc.setFillColor(r, g, b, 0.12);
@@ -246,14 +257,8 @@ export function generateThreatReport(p: ReportProfile): void {
     doc.setFont("helvetica", "normal");
     doc.setFontSize(7.5);
     doc.setTextColor(100, 116, 139);
-    const detailLines = doc.splitTextToSize(finding.details, 180);
     doc.text(detailLines, 14, y + 14);
-    y += 14 + detailLines.length * 4 + 3;
-
-    if (y > 265) {
-      doc.addPage();
-      y = 20;
-    }
+    y += itemHeight;
   }
 
   // ─ Page 2: VirusTotal + Network + APIs + Narrative ─
@@ -328,7 +333,7 @@ export function generateThreatReport(p: ReportProfile): void {
 
   // ─ Threat Narrative (always on fresh page if needed) ─
   
-  if (y > 160) {
+  if (y > 200) {
     doc.addPage();
     y = 20;
   }
@@ -337,9 +342,21 @@ export function generateThreatReport(p: ReportProfile): void {
   doc.setFontSize(8);
   doc.setTextColor(30, 41, 59);
   const narrativeLines = doc.splitTextToSize(p.threatNarrative, 182);
-  const maxLines = 60;
-  doc.text(narrativeLines.slice(0, maxLines), 14, y + 2);
-  y += Math.min(narrativeLines.length, maxLines) * 4.5 + 10;
+  
+  let currentLine = 0;
+  while (currentLine < narrativeLines.length) {
+    if (y > 260) {
+      doc.addPage();
+      y = 20;
+    }
+    const spaceLeft = 275 - y;
+    const linesThatFit = Math.max(1, Math.floor(spaceLeft / 4.5));
+    const chunk = narrativeLines.slice(currentLine, currentLine + linesThatFit);
+    doc.text(chunk, 14, y + 2);
+    y += chunk.length * 4.5;
+    currentLine += linesThatFit;
+  }
+  y += 10;
 
   if (y > 220) {
     doc.addPage();
