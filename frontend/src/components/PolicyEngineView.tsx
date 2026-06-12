@@ -47,26 +47,29 @@ export default function PolicyEngineView({ policyWeights, setPolicyWeights }: { 
                 
                 <div className="flex items-center gap-4">
                   <span className="font-mono-base text-xs text-outline">0</span>
-                  <div className="relative flex-1 h-3 bg-surface-container-high rounded-full overflow-hidden">
-                    <div 
-                      className="absolute top-0 left-0 h-full rounded-full transition-all duration-300"
-                      style={{ 
-                        width: `${barWidth}%`,
-                        backgroundColor: setting.color === "error" ? "var(--error)" : setting.color === "warning" ? "var(--accent-orange)" : "var(--primary)"
-                      }}
+                  <div className="relative flex-1 h-8 flex items-center">
+                    {/* Visual Bar Background */}
+                    <div className="absolute top-1/2 -translate-y-1/2 left-0 w-full h-3 bg-surface-container-high rounded-full overflow-hidden pointer-events-none">
+                      <div 
+                        className="absolute top-0 left-0 h-full rounded-full transition-all duration-300"
+                        style={{ 
+                          width: `${barWidth}%`,
+                          backgroundColor: setting.color === "error" ? "var(--error)" : setting.color === "warning" ? "var(--accent-orange)" : "var(--primary)"
+                        }}
+                      />
+                    </div>
+                    {/* Interactive Input */}
+                    <input
+                      type="range"
+                      min="0"
+                      max="50"
+                      value={val}
+                      onChange={(e) => updateWeight(setting.key, e.target.value)}
+                      className="w-full opacity-0 cursor-pointer relative z-10 h-full m-0"
                     />
                   </div>
                   <span className="font-mono-base text-xs text-outline">50</span>
                 </div>
-                
-                <input
-                  type="range"
-                  min="0"
-                  max="50"
-                  value={val}
-                  onChange={(e) => updateWeight(setting.key, e.target.value)}
-                  className="w-full mt-[-24px] opacity-0 cursor-pointer relative z-10 h-8"
-                />
               </div>
             );
           })}
