@@ -29,11 +29,11 @@ const STATUS_COLOR: Record<TimelineStage["status"], string> = {
 };
 
 const STATUS_BG: Record<TimelineStage["status"], string> = {
-  pending: "rgba(255,255,255,0.03)",
-  running: "rgba(0,229,255,0.08)",
-  done:    "rgba(50,215,75,0.08)",
-  warning: "rgba(255,214,10,0.08)",
-  error:   "rgba(255,69,58,0.08)",
+  pending: "rgba(15,23,42,0.04)",
+  running: "rgba(14,165,233,0.08)",
+  done:    "rgba(31,165,106,0.08)",
+  warning: "rgba(217,152,27,0.08)",
+  error:   "rgba(224,65,61,0.08)",
 };
 
 const STATUS_ICON: Record<TimelineStage["status"], string> = {

@@ -11,19 +11,14 @@ import ScoreBreakdown from "@/components/ScoreBreakdown";
 import ToastContainer, { type ToastItem } from "@/components/Toast";
 import UploadZone from "@/components/UploadZone";
 
+// -- v3.0 Components --
+import { DashboardView, type LedgerItem } from "@/components/DashboardView";
+import { AiNarrativeView } from "@/components/AiNarrativeView";
+import { AssetInventoryView } from "@/components/AssetInventoryView";
+
 // ─────────────────────────────────────────────────────────────────
 // Types
 // ─────────────────────────────────────────────────────────────────
-interface LedgerItem {
-  id: string;
-  pkg: string;
-  time: string;
-  score: number;
-  tier: string;
-  critCount: number;
-  fileSize?: number;
-}
-
 const NAV_ITEMS = [
   { id: "Dashboard",       label: "Dashboard",         icon: "DB", desc: "Scan history ledger" },
   { id: "APK Scanner",     label: "APK Scanner",        icon: "SC", desc: "Upload & analyze" },
@@ -73,9 +68,9 @@ const DynamicTrace = ({ traces }: { traces: React.ReactNode[] }) => {
 // Plausible Java snippet generator
 // ─────────────────────────────────────────────────────────────────
 function generatePlausibleSnippet(title: string, scope: string, description: string) {
-  const kw = `<span style="color:#c678dd">`, cl = `<span style="color:#e5c07b">`,
-        fn = `<span style="color:#61afef">`, st = `<span style="color:#98c379">`,
-        cm = `<span style="color:#5c6370;font-style:italic">`, r = `</span>`;
+  const kw = `<span style="color:#A626A4">`, cl = `<span style="color:#C18401">`,
+        fn = `<span style="color:#4078F2">`, st = `<span style="color:#50A14F">`,
+        cm = `<span style="color:#A0A1A7;font-style:italic">`, r = `</span>`;
 
   const sLower = scope.toLowerCase();
   const tLower = title.toLowerCase();
@@ -140,7 +135,7 @@ const ScoreArc = ({ score, tier }: { score: number; tier: string }) => {
   const offset = circ - (circ * score) / 100;
   return (
     <svg width="280" height="280" viewBox="0 0 280 280" style={{ transform: "rotate(-90deg)" }}>
-      <circle cx="140" cy="140" r={r} fill="none" stroke="var(--arc-track)" strokeWidth="12" />
+      <circle cx="140" cy="140" r={r} fill="none" stroke="rgba(15,23,42,0.06)" strokeWidth="12" />
       <circle
         cx="140" cy="140" r={r} fill="none"
         stroke={verdictColor(tier)}
@@ -474,292 +469,137 @@ export default function Home() {
   // RENDER
   // ─────────────────────────────────────────────────────────────
   return (
-    <div className="flex w-full h-full" style={{ backgroundColor: "var(--bg-main)", overflow: "hidden", height: "100vh" }}>
+    <>
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
 
-      {/* ── SIDEBAR ─────────────────────────────────────────── */}
-      <aside style={{
-        width: sidebarCollapsed ? "56px" : "220px",
-        backgroundColor: "var(--bg-sidebar)",
-        borderRight: "1px solid var(--border-color)",
-        display: "flex", flexDirection: "column",
-        flexShrink: 0,
-        transition: "width 0.25s cubic-bezier(0.4,0,0.2,1)",
-        overflow: "hidden",
-        zIndex: 20,
-      }}>
-        {/* Logo */}
-        <div style={{
-          height: 60,
-          display: "flex", alignItems: "center",
-          padding: sidebarCollapsed ? "0 14px" : "0 18px",
-          borderBottom: "1px solid var(--border-color)",
-          gap: 10, flexShrink: 0,
-        }}>
-          <div style={{
-            width: 28, height: 28, borderRadius: 6, flexShrink: 0,
-            background: "linear-gradient(135deg, var(--accent-purple), var(--accent-cyan))",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: "0.7rem", fontWeight: 800, boxShadow: "0 0 14px rgba(157,110,250,0.4)",
-          }}>AS</div>
-          {!sidebarCollapsed && (
-            <div style={{ overflow: "hidden" }}>
-              <div className="font-extrabold tracking-widest" style={{ fontSize: "0.78rem", color: "var(--text-primary)", whiteSpace: "nowrap" }}>APK SENTINEL</div>
-              <div style={{ fontSize: "0.58rem", color: "var(--text-muted)", letterSpacing: "0.06em", whiteSpace: "nowrap" }}>HYBRID THREAT ANALYSER</div>
-            </div>
+      {/* SideNavBar (from v3.0 JSON) */}
+      <nav className="fixed left-0 top-0 h-full flex-col pt-16 z-40 bg-surface-container-lowest border-r border-outline-variant w-64 hidden md:flex">
+        <div className="px-lg pb-lg">
+          <h1 className="font-headline-sm text-headline-sm font-black text-primary uppercase tracking-wider">APK SENTINEL</h1>
+          <p className="font-code-sm text-code-sm text-on-surface-variant uppercase tracking-widest mt-1">Forensic Integrity</p>
+        </div>
+        <ul className="flex-1 overflow-y-auto py-sm flex flex-col gap-xs px-sm">
+          {NAV_ITEMS.map(item => {
+            const isActive = activeNav === item.id;
+            return (
+              <li key={item.id}>
+                <button
+                  onClick={() => setActiveNav(item.id)}
+                  className={`w-full flex items-center gap-md px-md py-sm rounded transition-all duration-200 ease-in-out ${
+                    isActive
+                      ? "bg-secondary-container text-on-secondary-container font-semibold"
+                      : "text-on-surface-variant hover:bg-surface-container"
+                  }`}
+                >
+                  <span
+                    className="material-symbols-outlined"
+                    style={{ fontVariationSettings: isActive ? "'FILL' 1" : undefined }}
+                  >
+                    {item.icon === "DB" ? "dashboard" :
+                     item.icon === "SC" ? "document_scanner" :
+                     item.icon === "CF" ? "terminal" :
+                     item.icon === "AI" ? "psychology" :
+                     item.icon === "VT" ? "security" :
+                     item.icon === "DA" ? "science" :
+                     item.icon === "IN" ? "inventory_2" :
+                     item.icon === "HS" ? "data_object" :
+                     item.icon === "PE" ? "policy" : "settings"}
+                  </span>
+                  <span>{item.label}</span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+
+      {/* TopNavBar (Mobile only) */}
+      <header className="fixed top-0 w-full z-50 flex justify-between items-center px-lg h-16 bg-surface-bright border-b border-outline-variant md:hidden">
+        <div className="font-headline-md text-headline-md font-bold tracking-tight text-primary">APK SENTINEL</div>
+        <button onClick={() => setActiveNav("APK Scanner")} className="bg-primary text-on-primary font-label-mono text-label-mono px-md py-xs rounded hover:bg-primary-container transition-colors">
+          Scan APK
+        </button>
+      </header>
+
+      {/* Main Canvas */}
+      <main className="flex-1 ml-0 md:ml-64 pt-16 md:pt-0 min-h-screen px-container-margin py-xl flex flex-col max-w-[1600px] mx-auto w-full">
+        <div key={activeNav} className="animate-view flex-1 flex flex-col">
+
+          {activeNav === "Dashboard" && (
+            <DashboardView ledger={ledger} onNavigate={() => setActiveNav("APK Scanner")} />
           )}
+
+          {activeNav === "APK Scanner" && (
+            <ScannerView
+              isAnalyzing={isAnalyzing}
+              currentFile={currentFile}
+              logs={logs}
+              logRef={logRef}
+              analysisResult={analysisResult}
+              scoreData={scoreData}
+              riskScore={riskScore}
+              riskTier={riskTier}
+              critCount={critCount}
+              highCount={highCount}
+              medCount={medCount}
+              lowCount={lowCount}
+              totalIssues={totalIssues}
+              expandedSeverity={expandedSeverity}
+              setExpandedSeverity={setExpandedSeverity}
+              onFileSelected={handleFileUpload}
+              onDemoUpload={handleDemoUpload}
+              onDownloadPdf={handleDownloadPdf}
+            />
+          )}
+
+          {activeNav === "Code Forensics" && (
+            <CodeForensicsView analysisResult={analysisResult} />
+          )}
+
+          {activeNav === "AI Narrative" && (
+            <AiNarrativeView
+              narrative={aiNarrative}
+              loading={aiLoading}
+              chatHistory={chatHistory}
+              chatInput={chatInput}
+              setChatInput={setChatInput}
+              onChatSubmit={handleChatSubmit}
+              chatLoading={chatLoading}
+              hasResult={!!analysisResult}
+            />
+          )}
+
+          {activeNav === "VirusTotal" && (
+            <VirusTotalView analysisResult={analysisResult} />
+          )}
+
+          {activeNav === "Dynamic Analysis" && (
+            <DynamicAnalysisView analysisResult={analysisResult} />
+          )}
+
+          {activeNav === "Asset Inventory" && (
+            <AssetInventoryView analysisResult={analysisResult} />
+          )}
+
+          {activeNav === "Scan History" && (
+            <ScanHistoryView analysisResult={analysisResult} />
+          )}
+
+          {activeNav === "Policy Engine" && (
+            <PolicyEngineView policyWeights={policyWeights} setPolicyWeights={setPolicyWeights} />
+          )}
+
+          {activeNav === "Settings" && (
+            <SettingsView />
+          )}
+
         </div>
-
-        {/* Nav */}
-        <nav style={{ flex: 1, padding: "10px 6px", overflowY: "auto", overflowX: "hidden", display: "flex", flexDirection: "column", gap: 2 }}>
-          {NAV_ITEMS.map(item => (
-            <button
-              key={item.id}
-              onClick={() => setActiveNav(item.id)}
-              className={`nav-item${activeNav === item.id ? " active" : ""}`}
-              title={sidebarCollapsed ? item.label : undefined}
-              style={{ justifyContent: sidebarCollapsed ? "center" : undefined }}
-            >
-              {sidebarCollapsed && <span style={{ fontSize: "0.7rem", fontWeight: 800, flexShrink: 0, color: "var(--text-muted)" }}>{item.icon}</span>}
-              {!sidebarCollapsed && <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{item.label}</span>}
-            </button>
-          ))}
-        </nav>
-
-        {/* Collapse toggle */}
-        <div style={{ padding: "10px 6px", borderTop: "1px solid var(--border-color)", flexShrink: 0 }}>
-          <button
-            onClick={() => setSidebarCollapsed(c => !c)}
-            className="nav-item"
-            style={{ justifyContent: sidebarCollapsed ? "center" : "space-between", width: "100%" }}
-          >
-            {!sidebarCollapsed && <span style={{ fontSize: "0.72rem" }}>Collapse</span>}
-            <span style={{ fontSize: "0.8rem", flexShrink: 0 }}>{sidebarCollapsed ? "▶" : "◀"}</span>
-          </button>
-        </div>
-      </aside>
-
-      {/* ── MAIN ─────────────────────────────────────────────── */}
-      <div className="flex-col flex-1 h-full overflow-hidden">
-
-        {/* Header */}
-        <header style={{
-          height: 60, flexShrink: 0,
-          display: "flex", alignItems: "center", justifyContent: "space-between",
-          padding: "0 24px",
-          borderBottom: "1px solid var(--border-color)",
-          backgroundColor: "var(--bg-main)",
-        }}>
-          <div className="flex items-center gap-4">
-            <span className="font-bold tracking-widest uppercase" style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>
-              {NAV_ITEMS.find(n => n.id === activeNav)?.label ?? activeNav}
-            </span>
-            {analysisResult && (
-              <div className="flex items-center gap-2 animate-fadein">
-                <span className="text-muted" style={{ fontSize: "0.72rem" }}>▸</span>
-                <span style={{ fontSize: "0.72rem", color: "var(--text-secondary)" }} className="font-mono">
-                  {analysisResult.manifest.packageName}
-                </span>
-                <span className={verdictBadgeClass(riskTier)}>{riskTier}</span>
-              </div>
-            )}
-          </div>
-          <div className="flex items-center gap-5">
-            {isAnalyzing && (
-              <div className="flex items-center gap-2 animate-fadein">
-                <div style={{ width: 14, height: 14, border: "2px solid var(--accent-cyan)", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />
-                <span style={{ fontSize: "0.72rem", color: "var(--accent-cyan)", fontWeight: 600 }}>Analyzing…</span>
-              </div>
-            )}
-            <div className="flex items-center gap-2">
-              <div className="status-dot active" />
-              <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>Engine Online</span>
-            </div>
-            {analysisResult && (
-              <button className="btn-ghost" onClick={handleDownloadPdf} style={{ fontSize: "0.72rem" }}>
-                ↓ PDF Report
-              </button>
-            )}
-          </div>
-        </header>
-
-        {/* Content */}
-        <main style={{ flex: 1, overflowY: "auto", padding: "24px", maxWidth: 1500 }}>
-          <div key={activeNav} className="animate-view">
-
-            {/* ══════════════════════════════════════════════════ */}
-            {activeNav === "Dashboard" && (
-              <DashboardView ledger={ledger} onNavigate={() => setActiveNav("APK Scanner")} />
-            )}
-
-            {/* ══════════════════════════════════════════════════ */}
-            {activeNav === "APK Scanner" && (
-              <ScannerView
-                isAnalyzing={isAnalyzing}
-                currentFile={currentFile}
-                logs={logs}
-                logRef={logRef}
-                analysisResult={analysisResult}
-                scoreData={scoreData}
-                riskScore={riskScore}
-                riskTier={riskTier}
-                critCount={critCount}
-                highCount={highCount}
-                medCount={medCount}
-                lowCount={lowCount}
-                totalIssues={totalIssues}
-                expandedSeverity={expandedSeverity}
-                setExpandedSeverity={setExpandedSeverity}
-                onFileSelected={handleFileUpload}
-                onDemoUpload={handleDemoUpload}
-                onDownloadPdf={handleDownloadPdf}
-              />
-            )}
-
-            {/* ══════════════════════════════════════════════════ */}
-            {activeNav === "Code Forensics" && (
-              <CodeForensicsView analysisResult={analysisResult} />
-            )}
-
-            {/* ══════════════════════════════════════════════════ */}
-            {activeNav === "AI Narrative" && (
-              <AiNarrativeView
-                narrative={aiNarrative}
-                loading={aiLoading}
-                chatHistory={chatHistory}
-                chatInput={chatInput}
-                setChatInput={setChatInput}
-                onChatSubmit={handleChatSubmit}
-                chatLoading={chatLoading}
-                hasResult={!!analysisResult}
-              />
-            )}
-
-            {/* ══════════════════════════════════════════════════ */}
-            {activeNav === "VirusTotal" && (
-              <VirusTotalView analysisResult={analysisResult} />
-            )}
-
-            {/* ══════════════════════════════════════════════════ */}
-            {activeNav === "Dynamic Analysis" && (
-              <DynamicAnalysisView analysisResult={analysisResult} />
-            )}
-
-            {/* ══════════════════════════════════════════════════ */}
-            {activeNav === "Asset Inventory" && (
-              <AssetInventoryView analysisResult={analysisResult} />
-            )}
-
-            {/* ══════════════════════════════════════════════════ */}
-            {activeNav === "Scan History" && (
-              <ScanHistoryView analysisResult={analysisResult} />
-            )}
-
-            {/* ══════════════════════════════════════════════════ */}
-            {activeNav === "Policy Engine" && (
-              <PolicyEngineView policyWeights={policyWeights} setPolicyWeights={setPolicyWeights} />
-            )}
-
-            {/* ══════════════════════════════════════════════════ */}
-            {activeNav === "Settings" && (
-              <SettingsView />
-            )}
-
-          </div>
-        </main>
-      </div>
-    </div>
+      </main>
+    </>
   );
 }
 
-// ─────────────────────────────────────────────────────────────────
-// DASHBOARD VIEW
-// ─────────────────────────────────────────────────────────────────
-function DashboardView({ ledger, onNavigate }: { ledger: LedgerItem[]; onNavigate: () => void }) {
-  const totalScans = ledger.length;
-  const malCount   = ledger.filter(l => l.tier === "MALICIOUS" || l.tier === "FRAUDULENT").length;
-  const avgScore   = ledger.length ? Math.round(ledger.reduce((s, l) => s + l.score, 0) / ledger.length) : 0;
 
-  return (
-    <div className="flex-col gap-6">
-      {/* Stat row */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
-        {[
-          { label: "Total Scans",     value: totalScans,  color: "var(--accent-purple)", suffix: "" },
-          { label: "Threats Found",   value: malCount,    color: "var(--accent-red)",    suffix: "" },
-          { label: "Average Risk",    value: avgScore,    color: "var(--accent-yellow)", suffix: "/100" },
-          { label: "Clean APKs",      value: ledger.filter(l => l.tier === "BENIGN").length, color: "var(--accent-green)", suffix: "" },
-        ].map((s) => (
-          <div key={s.label} className="stat-card hover-glow">
-            <div className="stat-value" style={{ color: s.color }}>
-              <AnimatedCount value={s.value} />{s.suffix}
-            </div>
-            <div className="stat-label">{s.label}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Ledger */}
-      <div className="tpl-card hover-glow flex-col">
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h2 className="font-bold" style={{ fontSize: "0.95rem" }}>Master Scan Ledger</h2>
-            <p className="text-muted" style={{ fontSize: "0.72rem", marginTop: 2 }}>All APKs analyzed in this session</p>
-          </div>
-          <button className="btn-primary" onClick={onNavigate}>+ New Scan</button>
-        </div>
-
-        {ledger.length === 0 ? (
-          <div className="flex-col items-center justify-center gap-4" style={{ minHeight: 240, opacity: 0.5 }}>
-            <div style={{ fontSize: "2.5rem" }}>🔬</div>
-            <div className="text-muted text-sm">No APKs analyzed yet.</div>
-            <button className="btn-primary" onClick={onNavigate}>Upload your first APK</button>
-          </div>
-        ) : (
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.8rem" }}>
-            <thead>
-              <tr style={{ borderBottom: "1px solid var(--border-color)" }}>
-                {["APK File", "Package Name", "Time", "Risk Score", "Critical", "Verdict"].map(h => (
-                  <th key={h} style={{ padding: "8px 12px", textAlign: "left", color: "var(--text-muted)", fontWeight: 600, fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.06em" }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {ledger.map((item, i) => (
-                <tr key={`ledger-${item.time}-${i}`} className="hover-row" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)", cursor: "pointer" }}>
-                  <td style={{ padding: "12px" }}>
-                    <div className="flex items-center gap-3">
-                      <div style={{ width: 28, height: 28, borderRadius: 6, background: "rgba(157,110,250,0.1)", border: "1px solid rgba(157,110,250,0.25)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.8rem", flexShrink: 0 }}>📦</div>
-                      <span className="font-semibold" style={{ color: "var(--text-primary)" }}>{item.id}</span>
-                    </div>
-                  </td>
-                  <td style={{ padding: "12px", color: "var(--text-muted)", fontFamily: "var(--font-mono)", fontSize: "0.75rem" }}>{item.pkg}</td>
-                  <td style={{ padding: "12px", color: "var(--text-muted)" }}>{item.time}</td>
-                  <td style={{ padding: "12px" }}>
-                    <div className="flex items-center gap-2">
-                      <div style={{ width: 60, height: 4, borderRadius: 999, background: "rgba(0,0,0,0.07)", overflow: "hidden" }}>
-                        <div style={{ width: `${item.score}%`, height: "100%", background: verdictColor(item.tier), borderRadius: 999, transition: "width 1s ease" }} />
-                      </div>
-                      <span style={{ fontFamily: "var(--font-mono)", fontWeight: 700, color: verdictColor(item.tier) }}>{item.score}</span>
-                    </div>
-                  </td>
-                  <td style={{ padding: "12px" }}>
-                    {item.critCount > 0
-                      ? <span className="badge badge-malicious">{item.critCount} CRIT</span>
-                      : <span className="text-muted" style={{ fontSize: "0.72rem" }}>—</span>}
-                  </td>
-                  <td style={{ padding: "12px" }}>
-                    <span className={verdictBadgeClass(item.tier)}>{item.tier}</span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
-    </div>
-  );
-}
 
 // ─────────────────────────────────────────────────────────────────
 // SCANNER VIEW
@@ -796,7 +636,7 @@ function ScannerView({
         {(isAnalyzing || logs.length > 0) && (
           <div ref={logRef} className="terminal" style={{ maxHeight: 90, padding: "10px 16px" }}>
             {logs.map((l: any, i: number) => (
-              <div key={`log-${i}`} style={{ color: l.level === "error" ? "var(--accent-red)" : l.level === "warning" ? "var(--accent-yellow)" : l.level === "success" ? "var(--accent-green)" : "#4CAF50" }}>
+              <div key={`log-${i}`} style={{ color: l.level === "error" ? "var(--accent-red)" : l.level === "warning" ? "var(--accent-yellow)" : l.level === "success" ? "var(--accent-green)" : "#1A7F4B" }}>
                 <span style={{ opacity: 0.5, marginRight: 8 }}>[{l.pct}%]</span>{l.message}
               </div>
             ))}
@@ -857,7 +697,7 @@ function ScannerView({
                           <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "var(--text-primary)" }}>{label} Issues</span>
                           <span style={{ fontSize: "0.82rem", fontWeight: 800, color, fontFamily: "var(--font-mono)" }}>{count}</span>
                         </div>
-                        <div style={{ height: 3, background: "rgba(255,255,255,0.05)", borderRadius: 999, marginTop: 4 }}>
+                        <div style={{ height: 3, background: "rgba(15,23,42,0.06)", borderRadius: 999, marginTop: 4 }}>
                           <div style={{ width: totalIssues ? `${(count / totalIssues) * 100}%` : "0%", height: "100%", background: color, borderRadius: 999, transition: "width 1s ease" }} />
                         </div>
                       </div>
@@ -883,7 +723,7 @@ function ScannerView({
           <div className="flex-col gap-4">
             {/* VT Quick Result */}
             {analysisResult.analysis.virusTotal && (
-              <div className={`tpl-card hover-glow flex-col animate-fadein`} style={{ borderColor: analysisResult.analysis.virusTotal.stats?.malicious ? "rgba(255,77,77,0.3)" : "rgba(46,204,113,0.3)" }}>
+              <div className={`tpl-card hover-glow flex-col animate-fadein`} style={{ borderColor: analysisResult.analysis.virusTotal.stats?.malicious ? "rgba(224,65,61,0.3)" : "rgba(31,165,106,0.3)" }}>
                 <div className="flex justify-between items-center mb-3">
                   <h3 className="font-bold" style={{ fontSize: "0.85rem" }}>🛡 VirusTotal</h3>
                   <span className="badge badge-info" style={{ fontSize: "0.62rem" }}>Community Intel</span>
@@ -906,7 +746,7 @@ function ScannerView({
                         return (
                           <div key={s.label} className="flex items-center gap-2">
                             <span style={{ fontSize: "0.65rem", color: "var(--text-muted)", width: 62, flexShrink: 0 }}>{s.label}</span>
-                            <div style={{ flex: 1, height: 4, background: "rgba(255,255,255,0.05)", borderRadius: 999, overflow: "hidden" }}>
+                            <div style={{ flex: 1, height: 4, background: "rgba(15,23,42,0.06)", borderRadius: 999, overflow: "hidden" }}>
                               <div style={{ width: total ? `${(s.val / total) * 100}%` : "0%", height: "100%", background: s.color, borderRadius: 999, transition: "width 1s ease" }} />
                             </div>
                             <span style={{ fontSize: "0.65rem", fontFamily: "var(--font-mono)", fontWeight: 700, color: s.color, width: 22, textAlign: "right" }}>{s.val}</span>
@@ -930,7 +770,7 @@ function ScannerView({
               <div style={{ display: "grid", gridTemplateColumns: "repeat(10, 1fr)", gap: 3 }}>
                 {Array.from({ length: Math.max(30, analysisResult.manifest.permissions.length + 5) }).map((_, i) => {
                   const perm = analysisResult.analysis.permissions[i];
-                  const color = !perm ? "rgba(0,0,0,0.05)" :
+                  const color = !perm ? "rgba(15,23,42,0.06)" :
                     perm.severity === "CRITICAL" ? "var(--accent-red)" :
                     perm.severity === "HIGH"     ? "var(--accent-orange)" :
                     perm.severity === "MEDIUM"   ? "var(--accent-yellow)" : "var(--accent-green)";
@@ -1043,7 +883,7 @@ function CodeForensicsView({ analysisResult }: { analysisResult: AnalyzedApkResu
       ) : (
         findings.map((finding: any, idx: number) => (
           <div key={finding.id || `finding-${idx}`} className="tpl-card hover-glow flex-col" style={{ padding: 0, overflow: "hidden" }}>
-            <div className="flex justify-between items-center" style={{ padding: "12px 18px", background: "rgba(0,0,0,0.35)", borderBottom: "1px solid var(--border-color)" }}>
+            <div className="flex justify-between items-center" style={{ padding: "12px 18px", background: "var(--bg-card-hover)", borderBottom: "1px solid var(--border-color)" }}>
               <div className="flex items-center gap-3">
                 <div style={{ width: 8, height: 8, borderRadius: "50%", background: finding.severity === "CRITICAL" ? "var(--accent-red)" : "var(--accent-orange)", boxShadow: `0 0 8px ${finding.severity === "CRITICAL" ? "var(--accent-red)" : "var(--accent-orange)"}`, animation: "glowPulse 1.8s ease infinite" }} />
                 <span style={{ fontSize: "0.85rem", fontWeight: 700 }}>{finding.title}</span>
@@ -1055,12 +895,12 @@ function CodeForensicsView({ analysisResult }: { analysisResult: AnalyzedApkResu
               <div style={{ width: 4, flexShrink: 0, background: `linear-gradient(to bottom, ${finding.severity === "CRITICAL" ? "var(--accent-red)" : "var(--accent-orange)"}, transparent)` }} />
               <div style={{ flex: 1 }}>
                 {finding.description && (
-                  <div style={{ padding: "10px 16px", background: "rgba(255,255,255,0.02)", borderBottom: "1px solid var(--border-color)", fontSize: "0.78rem", color: "var(--text-secondary)" }}>
+                  <div style={{ padding: "10px 16px", background: "var(--bg-card)", borderBottom: "1px solid var(--border-color)", fontSize: "0.78rem", color: "var(--text-secondary)" }}>
                     {finding.description}
                   </div>
                 )}
-                <div style={{ background: "#06070D", padding: "16px 18px" }}>
-                  <pre style={{ fontSize: "0.78rem", fontFamily: "var(--font-mono)", color: "#a8b1c2", overflow: "auto", lineHeight: 1.65, whiteSpace: "pre-wrap" }}>
+                <div style={{ background: "#F6F8FA", padding: "16px 18px" }}>
+                  <pre style={{ fontSize: "0.78rem", fontFamily: "var(--font-mono)", color: "#3C4453", overflow: "auto", lineHeight: 1.65, whiteSpace: "pre-wrap" }}>
                     <TypewriterCode code={generatePlausibleSnippet(finding.title, finding.scope, finding.description || "")} />
                   </pre>
                 </div>
@@ -1076,118 +916,7 @@ function CodeForensicsView({ analysisResult }: { analysisResult: AnalyzedApkResu
 // ─────────────────────────────────────────────────────────────────
 // AI NARRATIVE VIEW
 // ─────────────────────────────────────────────────────────────────
-function AiNarrativeView({ narrative, loading, chatHistory, chatInput, setChatInput, onChatSubmit, chatLoading, hasResult }: any) {
-  const chatRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight;
-  }, [chatHistory]);
 
-  return (
-    <div className="flex-col gap-5" style={{ height: "calc(100vh - 180px)" }}>
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="font-bold" style={{ fontSize: "1.1rem" }}>
-            <span className="gradient-text">NVIDIA NIM · AI Threat Analyst</span>
-          </h2>
-          <p className="text-muted" style={{ fontSize: "0.78rem", marginTop: 3 }}>Llama-3.1-70B — Generative threat narrative &amp; interactive Q&amp;A</p>
-        </div>
-        <span className="badge badge-purple">AI-Powered</span>
-      </div>
-
-      <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 20, flex: 1, minHeight: 0 }}>
-        {/* Narrative */}
-        <div className="tpl-card hover-glow flex-col" style={{ overflow: "hidden" }}>
-          <div className="flex items-center gap-2 mb-4">
-            <span>🤖</span>
-            <h3 className="font-bold" style={{ fontSize: "0.88rem" }}>Generated Threat Narrative</h3>
-            {loading && (
-              <div className="flex items-center gap-2 animate-fadein ml-2">
-                <div style={{ width: 12, height: 12, border: "2px solid var(--accent-cyan)", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />
-                <span style={{ fontSize: "0.7rem", color: "var(--accent-cyan)" }}>NIM generating…</span>
-              </div>
-            )}
-          </div>
-          <div style={{ flex: 1, overflowY: "auto" }}>
-            {loading ? (
-              <div className="flex-col gap-3">
-                {[0.9, 0.75, 0.85, 0.6].map((w, i) => (
-                  <div key={i} className="skeleton" style={{ height: 16, width: `${w * 100}%` }} />
-                ))}
-              </div>
-            ) : narrative ? (
-              <p style={{ fontSize: "0.83rem", color: "var(--text-secondary)", whiteSpace: "pre-wrap", lineHeight: 1.9 }}>{narrative}</p>
-            ) : (
-              <div className="flex-col items-center justify-center h-full gap-3" style={{ opacity: 0.5 }}>
-                <div style={{ fontSize: "2rem" }}>🤖</div>
-                <div className="text-muted text-sm">Upload an APK to generate a threat narrative.</div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Chat */}
-        <div className="tpl-card hover-glow flex-col" style={{ overflow: "hidden" }}>
-          <div className="flex items-center gap-2 mb-4">
-            <span>💬</span>
-            <h3 className="font-bold" style={{ fontSize: "0.88rem" }}>Ask the AI Analyst</h3>
-          </div>
-          <div ref={chatRef} className="flex-1 flex-col gap-3" style={{ overflowY: "auto", minHeight: 0, paddingBottom: 4 }}>
-            {chatHistory.length === 0 && (
-              <div className="flex-col gap-2 text-muted" style={{ fontSize: "0.76rem" }}>
-                <p>Ask about the analyzed APK. Examples:</p>
-                {["Why is this rated malicious?", "Explain the SMS permission risk", "What is DexClassLoader?"].map(q => (
-                  <button key={q} className="btn-ghost" onClick={() => { if (hasResult) { onChatSubmit(q); } }} style={{ textAlign: "left", justifyContent: "flex-start" }}>
-                    → {q}
-                  </button>
-                ))}
-              </div>
-            )}
-            {chatHistory.map((msg: any, i: number) => (
-              <div key={`chat-${i}`} className={`flex-col animate-fadein`} style={{ alignItems: msg.role === "user" ? "flex-end" : "flex-start" }}>
-                <div style={{
-                  maxWidth: "88%", padding: "10px 14px", borderRadius: msg.role === "user" ? "12px 12px 4px 12px" : "12px 12px 12px 4px",
-                  background: msg.role === "user" ? "rgba(157,110,250,0.2)" : "rgba(255,255,255,0.04)",
-                  border: `1px solid ${msg.role === "user" ? "rgba(157,110,250,0.35)" : "var(--border-color)"}`,
-                  fontSize: "0.78rem", color: "var(--text-secondary)", lineHeight: 1.6,
-                }}>
-                  {msg.text}
-                </div>
-                <span style={{ fontSize: "0.62rem", color: "var(--text-muted)", marginTop: 3 }}>
-                  {msg.role === "user" ? "You" : "NIM AI"}
-                </span>
-              </div>
-            ))}
-            {chatLoading && (
-              <div className="flex items-center gap-2" style={{ color: "var(--accent-cyan)", fontSize: "0.75rem" }}>
-                <div style={{ width: 10, height: 10, border: "2px solid currentColor", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />
-                NIM is thinking…
-              </div>
-            )}
-          </div>
-          <div className="flex gap-2" style={{ marginTop: 12, borderTop: "1px solid var(--border-color)", paddingTop: 12 }}>
-            <input
-              type="text"
-              value={chatInput}
-              onChange={e => setChatInput(e.target.value)}
-              onKeyDown={e => e.key === "Enter" && !e.shiftKey && onChatSubmit()}
-              placeholder={hasResult ? "Ask about this APK…" : "Upload an APK first…"}
-              disabled={!hasResult || chatLoading}
-              style={{
-                flex: 1, background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-bright)",
-                borderRadius: 6, padding: "8px 12px", fontSize: "0.8rem", color: "var(--text-primary)",
-                outline: "none", fontFamily: "var(--font-sans)",
-              }}
-            />
-            <button className="btn-primary" onClick={onChatSubmit} disabled={!hasResult || chatLoading || !chatInput.trim()} style={{ flexShrink: 0 }}>
-              Send
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 // ─────────────────────────────────────────────────────────────────
 // VIRUSTOTAL VIEW
@@ -1213,7 +942,7 @@ function VirusTotalView({ analysisResult }: { analysisResult: AnalyzedApkResult 
       {vt.found ? (
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
           {/* Detection summary */}
-          <div className={`tpl-card hover-glow flex-col`} style={{ borderColor: isThreat ? "rgba(255,77,77,0.35)" : "rgba(46,204,113,0.35)", boxShadow: isThreat ? "0 0 30px rgba(255,77,77,0.1)" : "0 0 30px rgba(46,204,113,0.1)" }}>
+          <div className={`tpl-card hover-glow flex-col`} style={{ borderColor: isThreat ? "rgba(224,65,61,0.3)" : "rgba(31,165,106,0.3)", boxShadow: isThreat ? "var(--shadow-glow-red)" : "var(--shadow-glow-green)" }}>
             <div className="flex items-center gap-3 mb-4">
               <div style={{ fontSize: "2rem" }}>{isThreat ? "☠️" : "✅"}</div>
               <div>
@@ -1258,7 +987,7 @@ function VirusTotalView({ analysisResult }: { analysisResult: AnalyzedApkResult 
             <h3 className="font-bold" style={{ fontSize: "0.85rem" }}>File Identification</h3>
             <div className="flex items-center gap-4">
               <span className="text-muted" style={{ fontSize: "0.72rem", width: 80, flexShrink: 0 }}>SHA-256</span>
-              <code style={{ fontFamily: "var(--font-mono)", fontSize: "0.72rem", color: "var(--accent-cyan)", background: "rgba(0,217,255,0.06)", padding: "4px 10px", borderRadius: 4, wordBreak: "break-all" }}>
+              <code style={{ fontFamily: "var(--font-mono)", fontSize: "0.72rem", color: "var(--accent-cyan)", background: "rgba(14,165,233,0.06)", padding: "4px 10px", borderRadius: 4, wordBreak: "break-all" }}>
                 {analysisResult.fileHash}
               </code>
             </div>
@@ -1311,7 +1040,7 @@ function DynamicAnalysisView({ analysisResult }: { analysisResult: AnalyzedApkRe
 
       {/* Terminal */}
       <div className="tpl-card flex-col" style={{ padding: 0, overflow: "hidden" }}>
-        <div style={{ padding: "10px 16px", borderBottom: "1px solid var(--border-color)", display: "flex", alignItems: "center", gap: 8, background: "rgba(0,0,0,0.3)" }}>
+        <div style={{ padding: "10px 16px", borderBottom: "1px solid var(--border-color)", display: "flex", alignItems: "center", gap: 8, background: "var(--bg-card-hover)" }}>
           <div style={{ display: "flex", gap: 5 }}>
             {["#FF5F57","#FFBD2E","#28CA41"].map(c => <div key={c} style={{ width: 10, height: 10, borderRadius: "50%", background: c }} />)}
           </div>
@@ -1350,60 +1079,7 @@ function DynamicAnalysisView({ analysisResult }: { analysisResult: AnalyzedApkRe
 // ─────────────────────────────────────────────────────────────────
 // ASSET INVENTORY VIEW
 // ─────────────────────────────────────────────────────────────────
-function AssetInventoryView({ analysisResult }: { analysisResult: AnalyzedApkResult | null }) {
-  const [tab, setTab] = useState<"strings" | "classes" | "urls" | "ips">("strings");
-  if (!analysisResult) return <EmptyState icon="📦" title="No APK Loaded" subtitle="Upload an APK to browse extracted assets." />;
 
-  const tabData: Record<string, string[]> = {
-    strings: analysisResult.allStrings.slice(0, 200),
-    classes: analysisResult.classNames.slice(0, 200),
-    urls:    analysisResult.analysis.urls,
-    ips:     analysisResult.analysis.ips,
-  };
-  const tabLabels = [
-    { id: "strings", label: `Strings (${analysisResult.allStrings.length})` },
-    { id: "classes", label: `Classes (${analysisResult.classNames.length})` },
-    { id: "urls",    label: `URLs (${analysisResult.analysis.urls.length})` },
-    { id: "ips",     label: `IPs (${analysisResult.analysis.ips.length})` },
-  ];
-
-  return (
-    <div className="flex-col gap-5">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="font-bold" style={{ fontSize: "1.1rem" }}>Extracted APK Assets</h2>
-          <p className="text-muted" style={{ fontSize: "0.78rem", marginTop: 3 }}>DEX strings, class names, and network indicators from apkman parser</p>
-        </div>
-      </div>
-
-      <div className="flex gap-2">
-        {tabLabels.map(t => (
-          <button key={t.id} onClick={() => setTab(t.id as any)}
-            className={tab === t.id ? "btn-primary" : "btn-ghost"}
-            style={{ fontSize: "0.76rem" }}
-          >{t.label}</button>
-        ))}
-      </div>
-
-      <div className="tpl-card hover-glow" style={{ padding: 0, overflow: "hidden" }}>
-        <div style={{ padding: "8px 14px", background: "rgba(0,0,0,0.3)", borderBottom: "1px solid var(--border-color)", display: "flex", alignItems: "center", gap: 8 }}>
-          {["#FF5F57","#FFBD2E","#28CA41"].map(c => <div key={c} style={{ width: 10, height: 10, borderRadius: "50%", background: c }} />)}
-          <span className="font-mono text-muted" style={{ fontSize: "0.7rem" }}>apkman — {tab}</span>
-        </div>
-        <div style={{ padding: "14px 16px", maxHeight: 460, overflowY: "auto", fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "#a8b1c2", background: "#080810", lineHeight: 1.7 }}>
-          {tabData[tab].length === 0
-            ? <div className="text-muted italic">No {tab} found.</div>
-            : tabData[tab].map((item, i) => (
-                <div key={`${tab}-${i}`} className="hover-row" style={{ padding: "1px 6px", borderRadius: 3 }}>
-                  <span style={{ opacity: 0.3, marginRight: 12, userSelect: "none" }}>{String(i + 1).padStart(4, "0")}</span>
-                  <span style={{ color: tab === "urls" ? "var(--accent-cyan)" : tab === "ips" ? "var(--accent-yellow)" : "#a8b1c2" }}>{item}</span>
-                </div>
-              ))}
-        </div>
-      </div>
-    </div>
-  );
-}
 
 // ─────────────────────────────────────────────────────────────────
 // SCAN HISTORY VIEW
@@ -1422,11 +1098,11 @@ function ScanHistoryView({ analysisResult }: { analysisResult: AnalyzedApkResult
         </button>
       </div>
       <div className="tpl-card hover-glow" style={{ padding: 0, overflow: "hidden" }}>
-        <div style={{ padding: "8px 14px", background: "rgba(0,0,0,0.3)", borderBottom: "1px solid var(--border-color)", display: "flex", gap: 8, alignItems: "center" }}>
+        <div style={{ padding: "8px 14px", background: "var(--bg-card-hover)", borderBottom: "1px solid var(--border-color)", display: "flex", gap: 8, alignItems: "center" }}>
           {["#FF5F57","#FFBD2E","#28CA41"].map(c => <div key={c} style={{ width: 10, height: 10, borderRadius: "50%", background: c }} />)}
           <span className="font-mono text-muted" style={{ fontSize: "0.7rem" }}>analysis-result.json</span>
         </div>
-        <pre style={{ padding: "16px 20px", maxHeight: 520, overflowY: "auto", fontFamily: "var(--font-mono)", fontSize: "0.73rem", color: "#a8b1c2", background: "#06070D", whiteSpace: "pre-wrap", wordBreak: "break-all", lineHeight: 1.65 }}>
+        <pre style={{ padding: "16px 20px", maxHeight: 520, overflowY: "auto", fontFamily: "var(--font-mono)", fontSize: "0.73rem", color: "#3C4453", background: "#F6F8FA", whiteSpace: "pre-wrap", wordBreak: "break-all", lineHeight: 1.65 }}>
           {JSON.stringify(analysisResult, null, 2)}
         </pre>
       </div>
@@ -1544,17 +1220,17 @@ function SettingsView() {
                 onClick={() => toggleSetting(s.key as keyof typeof settings)}
                 style={{
                   width: 42, height: 24, borderRadius: 999, border: "none", cursor: "pointer",
-                  background: settings[s.key as keyof typeof settings] ? "var(--accent-purple)" : "rgba(255,255,255,0.1)",
+                  background: settings[s.key as keyof typeof settings] ? "var(--accent-purple)" : "rgba(15,23,42,0.12)",
                   position: "relative", flexShrink: 0,
                   transition: "background 0.2s",
-                  boxShadow: settings[s.key as keyof typeof settings] ? "0 0 10px rgba(157,110,250,0.5)" : "none",
+                  boxShadow: settings[s.key as keyof typeof settings] ? "0 0 0 3px rgba(14,156,168,0.2)" : "none",
                 }}
               >
                 <div style={{
                   position: "absolute", top: 3, width: 18, height: 18, borderRadius: "50%", background: "#fff",
                   left: settings[s.key as keyof typeof settings] ? "calc(100% - 21px)" : 3,
                   transition: "left 0.2s",
-                  boxShadow: "0 1px 4px rgba(0,0,0,0.4)",
+                  boxShadow: "0 1px 3px rgba(16,24,40,0.25)",
                 }} />
               </button>
             </div>

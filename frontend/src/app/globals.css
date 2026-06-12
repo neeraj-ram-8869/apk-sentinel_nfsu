@@ -1,3 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.glass-panel { background-color: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+.table-row-hover:hover { background-color: #F1F5F9; }
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -559,3 +566,4 @@ input[type="checkbox"] {
 .status-dot.warning { background: var(--accent-yellow); box-shadow: 0 0 8px rgba(217,119,6,0.55); }
 .status-dot.error   { background: var(--accent-red);    box-shadow: 0 0 8px rgba(220,38,38,0.55); animation: glowPulse 1.5s ease infinite; }
 .status-dot.idle    { background: var(--text-dim); }
+

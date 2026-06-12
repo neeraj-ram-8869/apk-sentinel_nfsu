@@ -1,7 +1,7 @@
 "use client";
 
 // ===================================================================
-// Session 6 — ManifestViewer Component
+// Session 6 â€” ManifestViewer Component
 // Interactive collapsible tree of AndroidManifest.xml
 // ===================================================================
 
@@ -18,7 +18,7 @@ interface XmlNode {
   isLeaf: boolean;
 }
 
-// ── Simple XML → tree (good enough for well-formed manifest XML) ──────
+// â”€â”€ Simple XML â†’ tree (good enough for well-formed manifest XML) â”€â”€â”€â”€â”€â”€
 
 function parseXmlToTree(xml: string): XmlNode | null {
   try {
@@ -48,7 +48,7 @@ function domToNode(el: Element): XmlNode {
   return { tag: el.tagName, attrs, children, isLeaf: children.length === 0 };
 }
 
-// ── Tag color palette ─────────────────────────────────────────────────
+// â”€â”€ Tag color palette â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const TAG_COLORS: Record<string, string> = {
   manifest:          "var(--accent-purple)",
@@ -68,7 +68,7 @@ function tagColor(tag: string): string {
   return TAG_COLORS[tag.toLowerCase()] ?? "var(--text-secondary)";
 }
 
-// ── Node renderer ─────────────────────────────────────────────────────
+// â”€â”€ Node renderer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function XmlNodeView({
   node,
@@ -114,7 +114,7 @@ function XmlNodeView({
         {/* Chevron */}
         {hasChildren ? (
           <span style={{ color: "var(--text-muted)", fontSize: "0.65rem", marginTop: "3px", width: "10px" }}>
-            {open ? "▾" : "▸"}
+            {open ? "â–¾" : "â–¸"}
           </span>
         ) : (
           <span style={{ width: "10px" }} />
@@ -122,22 +122,22 @@ function XmlNodeView({
 
         {/* Tag + attrs */}
         <span>
-          <span style={{ color: "#94a3b8" }}>{"<"}</span>
+          <span style={{ color: "#5B6472" }}>{"<"}</span>
           <span style={{ color: tagColor(node.tag), fontWeight: 700, fontSize: "0.78rem" }}>{node.tag}</span>
 
           {Object.entries(node.attrs).map(([k, v]) => (
             <span key={k} style={{ marginLeft: "6px", fontSize: "0.72rem", flexWrap: "wrap" }}>
               <span style={{ color: "#7dd3fc" }}>{k}</span>
-              <span style={{ color: "#94a3b8" }}>{"="}</span>
+              <span style={{ color: "#5B6472" }}>{"="}</span>
               <span style={{ color: "#86efac" }}>{`"${v}"`}</span>
             </span>
           ))}
 
           {node.isLeaf && (
-            <span style={{ color: "#94a3b8" }}>{" />"}</span>
+            <span style={{ color: "#5B6472" }}>{" />"}</span>
           )}
           {!node.isLeaf && (
-            <span style={{ color: "#94a3b8" }}>{">"}</span>
+            <span style={{ color: "#5B6472" }}>{">"}</span>
           )}
         </span>
 
@@ -148,7 +148,7 @@ function XmlNodeView({
             fontSize: "0.6rem", padding: "1px 5px", borderRadius: "3px",
             fontWeight: 800, marginLeft: "6px",
           }}>
-            ⚠ DANGEROUS
+            âš  DANGEROUS
           </span>
         )}
       </div>
@@ -160,7 +160,7 @@ function XmlNodeView({
             <XmlNodeView key={`xml-${depth}-${i}`} node={child} depth={depth + 1} />
           ))}
           <div style={{ paddingLeft: `${(depth + 1) * 16 - indent}px` }}>
-            <span style={{ color: "#94a3b8", fontSize: "0.78rem" }}>
+            <span style={{ color: "#5B6472", fontSize: "0.78rem" }}>
               {"</"}<span style={{ color: tagColor(node.tag), fontWeight: 700 }}>{node.tag}</span>{">"}
             </span>
           </div>
@@ -170,7 +170,7 @@ function XmlNodeView({
   );
 }
 
-// ── Main component ────────────────────────────────────────────────────
+// â”€â”€ Main component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export default function ManifestViewer({ xmlString }: ManifestViewerProps) {
   const [mode, setMode] = useState<"tree" | "raw">("tree");
@@ -196,7 +196,7 @@ export default function ManifestViewer({ xmlString }: ManifestViewerProps) {
               borderRadius: "4px 4px 0 0",
             }}
           >
-            {m === "tree" ? "🌲 Tree View" : "📄 Raw XML"}
+            {m === "tree" ? "ðŸŒ² Tree View" : "ðŸ“„ Raw XML"}
           </button>
         ))}
       </div>
@@ -204,7 +204,7 @@ export default function ManifestViewer({ xmlString }: ManifestViewerProps) {
       {/* Content */}
       {mode === "raw" ? (
         <pre style={{
-          background: "#0f172a",
+          background: "#F6F8FA",
           padding: "16px",
           borderRadius: "6px",
           overflowX: "auto",
@@ -212,14 +212,14 @@ export default function ManifestViewer({ xmlString }: ManifestViewerProps) {
           fontSize: "0.72rem",
           fontFamily: "var(--font-mono)",
           lineHeight: 1.6,
-          color: "#94a3b8",
+          color: "#5B6472",
           border: "1px solid var(--border-subtle)",
         }}>
           <code>{xmlString}</code>
         </pre>
       ) : tree ? (
         <div style={{
-          background: "#0f172a",
+          background: "#F6F8FA",
           padding: "16px",
           borderRadius: "6px",
           overflowX: "auto",
@@ -232,13 +232,13 @@ export default function ManifestViewer({ xmlString }: ManifestViewerProps) {
         </div>
       ) : (
         <pre style={{
-          background: "#0f172a",
+          background: "#F6F8FA",
           padding: "16px",
           borderRadius: "6px",
           maxHeight: "380px",
           fontSize: "0.72rem",
           fontFamily: "var(--font-mono)",
-          color: "#94a3b8",
+          color: "#5B6472",
           overflowY: "auto",
         }}>
           {xmlString}

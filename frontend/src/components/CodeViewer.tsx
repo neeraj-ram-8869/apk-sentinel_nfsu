@@ -1,6 +1,6 @@
 "use client";
 // ===================================================================
-// Session 6 — CodeViewer Component
+// Session 6 â€” CodeViewer Component
 // Displays DEX class names and suspicious API strings with filtering.
 // ===================================================================
 import { useState } from "react";
@@ -79,7 +79,7 @@ export default function CodeViewer({
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder={`Search ${tab}…`}
+          placeholder={`Search ${tab}â€¦`}
           style={{
             background: "#f8fafc", border: "1px solid var(--border-subtle)",
             borderRadius: "4px", padding: "7px 12px",
@@ -91,7 +91,7 @@ export default function CodeViewer({
 
       {/* Content */}
       <div style={{
-        background: "#0f172a", borderRadius: "6px", padding: "14px",
+        background: "#F6F8FA", borderRadius: "6px", padding: "14px",
         maxHeight: "300px", overflowY: "auto",
         fontFamily: "var(--font-mono)", fontSize: "0.72rem", lineHeight: 1.7,
       }}>
@@ -99,49 +99,49 @@ export default function CodeViewer({
           filter(classNames).length > 0 ? filter(classNames).map((cls, i) => {
             const isDangerous = /AccessibilityService|DexClassLoader|Runtime|SmsManager|Crypto/.test(cls);
             return (
-              <div key={`class-${cls}-${i}`} style={{ color: isDangerous ? "#fbbf24" : "#94a3b8", marginBottom: "1px" }}>
-                <span style={{ color: "#475569" }}>L</span>
+              <div key={`class-${cls}-${i}`} style={{ color: isDangerous ? "#B9770E" : "#5B6472", marginBottom: "1px" }}>
+                <span style={{ color: "#A1A8B3" }}>L</span>
                 {cls.replace(/\./g, "/")}
-                <span style={{ color: "#475569" }}>;</span>
-                {isDangerous && <span style={{ color: "#f87171", marginLeft: "8px" }}>⚠</span>}
+                <span style={{ color: "#A1A8B3" }}>;</span>
+                {isDangerous && <span style={{ color: "#D14343", marginLeft: "8px" }}>âš </span>}
               </div>
             );
-          }) : <div style={{ color: "#475569" }}>No class names extracted.</div>
+          }) : <div style={{ color: "#A1A8B3" }}>No class names extracted.</div>
         )}
 
         {tab === "strings" && (
           filter(suspiciousStrings).length > 0 ? filter(suspiciousStrings).map((s, i) => (
-            <div key={`str-${i}`} style={{ color: "#fbbf24", marginBottom: "2px" }}>
-              <span style={{ color: "#475569" }}>&quot;</span>{s}<span style={{ color: "#475569" }}>&quot;</span>
+            <div key={`str-${i}`} style={{ color: "#B9770E", marginBottom: "2px" }}>
+              <span style={{ color: "#A1A8B3" }}>&quot;</span>{s}<span style={{ color: "#A1A8B3" }}>&quot;</span>
             </div>
-          )) : <div style={{ color: "#475569" }}>No suspicious strings flagged.</div>
+          )) : <div style={{ color: "#A1A8B3" }}>No suspicious strings flagged.</div>
         )}
 
         {tab === "network" && (
           urls.length + ips.length > 0 ? (
             <>
               {urls.map((url, i) => (
-                <div key={`url-${i}`} style={{ color: "#f87171", marginBottom: "2px" }}>
-                  <span style={{ color: "#7dd3fc" }}>URL: </span>{url}
+                <div key={`url-${i}`} style={{ color: "#D14343", marginBottom: "2px" }}>
+                  <span style={{ color: "#0E9CA8" }}>URL: </span>{url}
                 </div>
               ))}
               {ips.map((ip, i) => (
-                <div key={`ip-${i}`} style={{ color: "#fb923c", marginBottom: "2px" }}>
-                  <span style={{ color: "#7dd3fc" }}>IP:  </span>{ip}
+                <div key={`ip-${i}`} style={{ color: "#C8631E", marginBottom: "2px" }}>
+                  <span style={{ color: "#0E9CA8" }}>IP:  </span>{ip}
                 </div>
               ))}
             </>
-          ) : <div style={{ color: "#475569" }}>No network indicators found.</div>
+          ) : <div style={{ color: "#A1A8B3" }}>No network indicators found.</div>
         )}
 
         {tab === "apis" && (
           apis && apis.length > 0 ? apis.map((api, i) => (
             <div key={`api-${i}`} style={{ marginBottom: "6px" }}>
               <span style={{ color: DANGER_COLOR[api.danger] }}>{api.name}</span>
-              <span style={{ color: "#64748b", marginLeft: "8px" }}>{`// ${api.category}`}</span>
-              {api.details && <div style={{ color: "#475569", marginLeft: "12px", fontSize: "0.68rem" }}>{api.details}</div>}
+              <span style={{ color: "#9AA1AC", marginLeft: "8px" }}>{`// ${api.category}`}</span>
+              {api.details && <div style={{ color: "#A1A8B3", marginLeft: "12px", fontSize: "0.68rem" }}>{api.details}</div>}
             </div>
-          )) : <div style={{ color: "#475569" }}>No suspicious API patterns detected.</div>
+          )) : <div style={{ color: "#A1A8B3" }}>No suspicious API patterns detected.</div>
         )}
       </div>
     </div>
