@@ -612,8 +612,8 @@ function ScannerView({
   return (
     <div className="flex-col gap-5">
       {/* Upload zone */}
-      <div className="tpl-card" style={{ padding: 0, overflow: "hidden" }}>
-        <div className="flex items-center gap-4" style={{ padding: "18px 20px", borderBottom: analysisResult ? "1px solid var(--border-color)" : undefined }}>
+      <div className="bg-surface-container-lowest border border-outline-variant rounded p-lg" style={{ padding: 0, overflow: "hidden" }}>
+        <div className="flex items-center gap-4" style={{ padding: "18px 20px", borderBottom: analysisResult ? "1px solid var(--border-outline-variant)" : undefined }}>
           <div className="flex-1">
             <UploadZone
               onFileSelected={onFileSelected}
@@ -623,10 +623,10 @@ function ScannerView({
             />
           </div>
           <div className="flex-col gap-2" style={{ flexShrink: 0 }}>
-            <button className="btn-success" onClick={() => onDemoUpload("good")}>
+            <button className="bg-[#ECFDF5] text-[#047857] border border-[#047857] font-label-mono text-[13px] px-md py-[6px] rounded hover:bg-[#D1FAE5] transition-colors" onClick={() => onDemoUpload("good")}>
               ✓ Simulate: Verified App
             </button>
-            <button className="btn-danger pulse-red" onClick={() => onDemoUpload("bad")}>
+            <button className="bg-[#FEF2F2] text-[#B91C1C] border border-[#B91C1C] font-label-mono text-[13px] px-md py-[6px] rounded hover:bg-[#FEE2E2] transition-colors animate-pulse" onClick={() => onDemoUpload("bad")}>
               ☠ Inject: Cerberus Dropper
             </button>
           </div>
@@ -634,7 +634,7 @@ function ScannerView({
 
         {/* Live log */}
         {(isAnalyzing || logs.length > 0) && (
-          <div ref={logRef} className="terminal" style={{ maxHeight: 90, padding: "10px 16px" }}>
+          <div ref={logRef} className="bg-[#1d1a24] text-[#d3bbff] font-code-sm text-code-sm rounded p-md overflow-x-auto border border-[#38485d]" style={{ maxHeight: 90, padding: "10px 16px" }}>
             {logs.map((l: any, i: number) => (
               <div key={`log-${i}`} style={{ color: l.level === "error" ? "var(--accent-red)" : l.level === "warning" ? "var(--accent-yellow)" : l.level === "success" ? "var(--accent-green)" : "#1A7F4B" }}>
                 <span style={{ opacity: 0.5, marginRight: 8 }}>[{l.pct}%]</span>{l.message}
@@ -650,20 +650,20 @@ function ScannerView({
         <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gridTemplateRows: "auto auto", gap: 20 }}>
 
           {/* ── Risk Score card ── */}
-          <div className="tpl-card hover-glow flex-col" style={{ minHeight: 380 }}>
+          <div className="bg-surface-container-lowest border border-outline-variant rounded p-lg flex flex-col transition-colors hover:border-primary" style={{ minHeight: 380 }}>
             <div className="flex justify-between items-center mb-4">
               <div>
-                <h2 className="font-bold" style={{ fontSize: "0.9rem" }}>Risk Assessment</h2>
-                <p className="text-muted" style={{ fontSize: "0.7rem" }}>Rule-based weighted scoring engine</p>
+                <h2 className="font-headline-sm text-headline-sm text-on-surface">Risk Assessment</h2>
+                <p className="text-on-surface-variant font-code-sm" style={{ fontSize: "0.7rem" }}>Rule-based weighted scoring engine</p>
               </div>
-              <button className="btn-primary" onClick={onDownloadPdf}>↓ PDF Report</button>
+              <button className="bg-primary text-on-primary font-label-mono text-label-mono px-lg py-sm rounded hover:bg-primary-container transition-colors" onClick={onDownloadPdf}>↓ PDF Report</button>
             </div>
             <div className="flex items-center gap-8 flex-1">
               {/* Arc + score */}
               <div style={{ position: "relative", width: 280, height: 280, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <ScoreArc score={riskScore} tier={riskTier} />
                 <div style={{ position: "absolute", textAlign: "center" }}>
-                  <div className="text-muted" style={{ fontSize: "0.68rem", marginBottom: 4 }}>RISK SCORE</div>
+                  <div className="text-on-surface-variant font-code-sm" style={{ fontSize: "0.68rem", marginBottom: 4 }}>RISK SCORE</div>
                   <div className="font-extrabold" style={{ fontSize: "2.5rem", fontFamily: "var(--font-mono)", color: verdictColor(riskTier), lineHeight: 1 }}>
                     <AnimatedCount value={riskScore} />
                   </div>
@@ -672,7 +672,7 @@ function ScannerView({
                     <span className={verdictBadgeClass(riskTier)}>{riskTier}</span>
                   </div>
                   {scoreData && (
-                    <div className="text-muted" style={{ fontSize: "0.65rem", marginTop: 6 }}>Confidence: {scoreData.confidence}</div>
+                    <div className="text-on-surface-variant font-code-sm" style={{ fontSize: "0.65rem", marginTop: 6 }}>Confidence: {scoreData.confidence}</div>
                   )}
                 </div>
               </div>
@@ -723,10 +723,10 @@ function ScannerView({
           <div className="flex-col gap-4">
             {/* VT Quick Result */}
             {analysisResult.analysis.virusTotal && (
-              <div className={`tpl-card hover-glow flex-col animate-fadein`} style={{ borderColor: analysisResult.analysis.virusTotal.stats?.malicious ? "rgba(224,65,61,0.3)" : "rgba(31,165,106,0.3)" }}>
+              <div className={`bg-surface-container-lowest border border-outline-variant rounded p-lg flex flex-col transition-colors hover:border-primary animate-fadein`} style={{ borderColor: analysisResult.analysis.virusTotal.stats?.malicious ? "rgba(224,65,61,0.3)" : "rgba(31,165,106,0.3)" }}>
                 <div className="flex justify-between items-center mb-3">
-                  <h3 className="font-bold" style={{ fontSize: "0.85rem" }}>🛡 VirusTotal</h3>
-                  <span className="badge badge-info" style={{ fontSize: "0.62rem" }}>Community Intel</span>
+                  <h3 className="font-headline-sm text-headline-sm text-on-surface">🛡 VirusTotal</h3>
+                  <span className="bg-surface-container text-on-surface-variant border border-outline-variant rounded-sm px-sm py-[2px] font-label-mono text-[11px]" style={{ fontSize: "0.62rem" }}>Community Intel</span>
                 </div>
                 {analysisResult.analysis.virusTotal.found ? (
                   <div className="flex items-center gap-4">
@@ -762,10 +762,10 @@ function ScannerView({
             )}
 
             {/* Permissions Heatmap */}
-            <div className="tpl-card hover-glow flex-col">
+            <div className="bg-surface-container-lowest border border-outline-variant rounded p-lg flex flex-col transition-colors hover:border-primary">
               <div className="flex justify-between items-center mb-3">
-                <h3 className="font-bold" style={{ fontSize: "0.85rem" }}>Permission Matrix</h3>
-                <span className="text-muted" style={{ fontSize: "0.68rem" }}>{analysisResult.manifest.permissions.length} declared</span>
+                <h3 className="font-headline-sm text-headline-sm text-on-surface">Permission Matrix</h3>
+                <span className="text-on-surface-variant font-code-sm" style={{ fontSize: "0.68rem" }}>{analysisResult.manifest.permissions.length} declared</span>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(10, 1fr)", gap: 3 }}>
                 {Array.from({ length: Math.max(30, analysisResult.manifest.permissions.length + 5) }).map((_, i) => {
@@ -797,11 +797,11 @@ function ScannerView({
           </div>
 
           {/* ── DNA Fingerprint + Score Breakdown ── */}
-          <div className="tpl-card hover-glow flex-col" style={{ gridColumn: "1 / 2" }}>
+          <div className="bg-surface-container-lowest border border-outline-variant rounded p-lg flex flex-col transition-colors hover:border-primary" style={{ gridColumn: "1 / 2" }}>
             <div className="flex justify-between items-center mb-4">
               <div>
-                <h2 className="font-bold" style={{ fontSize: "0.9rem" }}>DNA Fingerprint</h2>
-                <p className="text-muted" style={{ fontSize: "0.7rem" }}>Composite threat signal visualization</p>
+                <h2 className="font-headline-sm text-headline-sm text-on-surface">DNA Fingerprint</h2>
+                <p className="text-on-surface-variant font-code-sm" style={{ fontSize: "0.7rem" }}>Composite threat signal visualization</p>
               </div>
             </div>
             <div className="flex gap-6">
@@ -820,7 +820,7 @@ function ScannerView({
                   debugKey={analysisResult.signature.debugKey}
                   size={240}
                 />
-                <span className="text-muted" style={{ fontSize: "0.65rem", marginTop: 6 }}>Concentric threat rings</span>
+                <span className="text-on-surface-variant font-code-sm" style={{ fontSize: "0.65rem", marginTop: 6 }}>Concentric threat rings</span>
               </div>
               <div className="flex-1" style={{ minWidth: 0, maxHeight: 340, overflowY: "auto" }}>
                 {scoreData && <ScoreBreakdown result={scoreData} />}
@@ -829,11 +829,11 @@ function ScannerView({
           </div>
 
           {/* ── Analysis Timeline ── */}
-          <div className="tpl-card hover-glow flex-col" style={{ gridColumn: "2 / 3" }}>
+          <div className="bg-surface-container-lowest border border-outline-variant rounded p-lg flex flex-col transition-colors hover:border-primary" style={{ gridColumn: "2 / 3" }}>
             <div className="flex justify-between items-center mb-4">
               <div>
-                <h2 className="font-bold" style={{ fontSize: "0.9rem" }}>Analysis Pipeline</h2>
-                <p className="text-muted" style={{ fontSize: "0.7rem" }}>Engine stage-by-stage timeline</p>
+                <h2 className="font-headline-sm text-headline-sm text-on-surface">Analysis Pipeline</h2>
+                <p className="text-on-surface-variant font-code-sm" style={{ fontSize: "0.7rem" }}>Engine stage-by-stage timeline</p>
               </div>
             </div>
             <AnalysisTimeline
@@ -869,10 +869,10 @@ function CodeForensicsView({ analysisResult }: { analysisResult: AnalyzedApkResu
     <div className="flex-col gap-5">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="font-bold" style={{ fontSize: "1.1rem" }}>Decompiled Code Forensics</h2>
-          <p className="text-muted" style={{ fontSize: "0.78rem", marginTop: 3 }}>JADX static decompiler output — critical &amp; high severity patterns</p>
+          <h2 className="font-headline-sm text-headline-sm text-on-surface">Decompiled Code Forensics</h2>
+          <p className="text-on-surface-variant font-code-sm" style={{ fontSize: "0.78rem", marginTop: 3 }}>JADX static decompiler output — critical &amp; high severity patterns</p>
         </div>
-        <span className="badge badge-info">apkman Static Engine</span>
+        <span className="bg-surface-container text-on-surface-variant border border-outline-variant rounded-sm px-sm py-[2px] font-label-mono text-[11px]">apkman Static Engine</span>
       </div>
 
       {findings.length === 0 ? (
@@ -882,7 +882,7 @@ function CodeForensicsView({ analysisResult }: { analysisResult: AnalyzedApkResu
         </div>
       ) : (
         findings.map((finding: any, idx: number) => (
-          <div key={finding.id || `finding-${idx}`} className="tpl-card hover-glow flex-col" style={{ padding: 0, overflow: "hidden" }}>
+          <div key={finding.id || `finding-${idx}`} className="bg-surface-container-lowest border border-outline-variant rounded p-lg flex flex-col transition-colors hover:border-primary" style={{ padding: 0, overflow: "hidden" }}>
             <div className="flex justify-between items-center" style={{ padding: "12px 18px", background: "var(--bg-card-hover)", borderBottom: "1px solid var(--border-color)" }}>
               <div className="flex items-center gap-3">
                 <div style={{ width: 8, height: 8, borderRadius: "50%", background: finding.severity === "CRITICAL" ? "var(--accent-red)" : "var(--accent-orange)", boxShadow: `0 0 8px ${finding.severity === "CRITICAL" ? "var(--accent-red)" : "var(--accent-orange)"}`, animation: "glowPulse 1.8s ease infinite" }} />
@@ -934,8 +934,8 @@ function VirusTotalView({ analysisResult }: { analysisResult: AnalyzedApkResult 
     <div className="flex-col gap-5">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="font-bold" style={{ fontSize: "1.1rem" }}>VirusTotal Community Intelligence</h2>
-          <p className="text-muted" style={{ fontSize: "0.78rem", marginTop: 3 }}>Multi-engine malware detection consortium</p>
+          <h2 className="font-headline-sm text-headline-sm text-on-surface">VirusTotal Community Intelligence</h2>
+          <p className="text-on-surface-variant font-code-sm" style={{ fontSize: "0.78rem", marginTop: 3 }}>Multi-engine malware detection consortium</p>
         </div>
       </div>
 
@@ -946,8 +946,8 @@ function VirusTotalView({ analysisResult }: { analysisResult: AnalyzedApkResult 
             <div className="flex items-center gap-3 mb-4">
               <div style={{ fontSize: "2rem" }}>{isThreat ? "☠️" : "✅"}</div>
               <div>
-                <div className="font-bold" style={{ fontSize: "0.9rem" }}>{isThreat ? "Threat Detected" : "File is Clean"}</div>
-                <div className="text-muted" style={{ fontSize: "0.72rem" }}>{isThreat ? `${stats.malicious} engines flagged this file` : "0 engines reported threats"}</div>
+                <div className="font-headline-sm text-headline-sm text-on-surface">{isThreat ? "Threat Detected" : "File is Clean"}</div>
+                <div className="text-on-surface-variant font-code-sm" style={{ fontSize: "0.72rem" }}>{isThreat ? `${stats.malicious} engines flagged this file` : "0 engines reported threats"}</div>
               </div>
             </div>
             <div style={{ fontSize: "3rem", fontWeight: 800, fontFamily: "var(--font-mono)", color: isThreat ? "var(--accent-red)" : "var(--accent-green)", lineHeight: 1 }}>
@@ -963,7 +963,7 @@ function VirusTotalView({ analysisResult }: { analysisResult: AnalyzedApkResult 
 
           {/* Engine breakdown */}
           <div className="tpl-card hover-glow flex-col gap-4">
-            <h3 className="font-bold" style={{ fontSize: "0.85rem" }}>Detection Breakdown</h3>
+            <h3 className="font-headline-sm text-headline-sm text-on-surface">Detection Breakdown</h3>
             {[
               { label: "Malicious",  value: stats.malicious,  color: "var(--accent-red)",    pct: total ? (stats.malicious / total) * 100 : 0 },
               { label: "Suspicious", value: stats.suspicious, color: "var(--accent-yellow)", pct: total ? (stats.suspicious / total) * 100 : 0 },
@@ -984,9 +984,9 @@ function VirusTotalView({ analysisResult }: { analysisResult: AnalyzedApkResult 
 
           {/* Hash info */}
           <div className="tpl-card hover-glow flex-col gap-3" style={{ gridColumn: "1 / 3" }}>
-            <h3 className="font-bold" style={{ fontSize: "0.85rem" }}>File Identification</h3>
+            <h3 className="font-headline-sm text-headline-sm text-on-surface">File Identification</h3>
             <div className="flex items-center gap-4">
-              <span className="text-muted" style={{ fontSize: "0.72rem", width: 80, flexShrink: 0 }}>SHA-256</span>
+              <span className="text-on-surface-variant font-code-sm" style={{ fontSize: "0.72rem", width: 80, flexShrink: 0 }}>SHA-256</span>
               <code style={{ fontFamily: "var(--font-mono)", fontSize: "0.72rem", color: "var(--accent-cyan)", background: "rgba(14,165,233,0.06)", padding: "4px 10px", borderRadius: 4, wordBreak: "break-all" }}>
                 {analysisResult.fileHash}
               </code>
@@ -1014,10 +1014,10 @@ function DynamicAnalysisView({ analysisResult }: { analysisResult: AnalyzedApkRe
     <div className="flex-col gap-5">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="font-bold" style={{ fontSize: "1.1rem" }}>Aparoid Dynamic Execution Trace</h2>
-          <p className="text-muted" style={{ fontSize: "0.78rem", marginTop: 3 }}>Emulated runtime sandbox — network hooks, filesystem, API intercepts</p>
+          <h2 className="font-headline-sm text-headline-sm text-on-surface">Aparoid Dynamic Execution Trace</h2>
+          <p className="text-on-surface-variant font-code-sm" style={{ fontSize: "0.78rem", marginTop: 3 }}>Emulated runtime sandbox — network hooks, filesystem, API intercepts</p>
         </div>
-        <span className="badge badge-info" style={{ animation: "glowPulse 2s ease infinite" }}>⚡ Live Emulator</span>
+        <span className="bg-surface-container text-on-surface-variant border border-outline-variant rounded-sm px-sm py-[2px] font-label-mono text-[11px]" style={{ animation: "glowPulse 2s ease infinite" }}>⚡ Live Emulator</span>
       </div>
 
       {/* Tracer codes */}
@@ -1046,7 +1046,7 @@ function DynamicAnalysisView({ analysisResult }: { analysisResult: AnalyzedApkRe
           </div>
           <span className="font-mono text-muted" style={{ fontSize: "0.72rem" }}>aparoid-sandbox — {analysisResult?.manifest.packageName ?? "waiting…"}</span>
         </div>
-        <div className="terminal" style={{ minHeight: 280, padding: 20 }}>
+        <div className="bg-[#1d1a24] text-[#d3bbff] font-code-sm text-code-sm rounded p-md overflow-x-auto border border-[#38485d]" style={{ minHeight: 280, padding: 20 }}>
           {analysisResult ? (
             <DynamicTrace traces={[
               <div key="dt-start" className="mb-1" style={{ color: "var(--accent-cyan)" }}>&gt; aparoid v2.1 — attaching to {analysisResult.manifest.packageName}…</div>,
@@ -1090,14 +1090,14 @@ function ScanHistoryView({ analysisResult }: { analysisResult: AnalyzedApkResult
     <div className="flex-col gap-5">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="font-bold" style={{ fontSize: "1.1rem" }}>Raw Engine Output</h2>
-          <p className="text-muted" style={{ fontSize: "0.78rem", marginTop: 3 }}>Full JSON analysis payload from the parser + analysis engine</p>
+          <h2 className="font-headline-sm text-headline-sm text-on-surface">Raw Engine Output</h2>
+          <p className="text-on-surface-variant font-code-sm" style={{ fontSize: "0.78rem", marginTop: 3 }}>Full JSON analysis payload from the parser + analysis engine</p>
         </div>
         <button className="btn-ghost" onClick={() => { navigator.clipboard.writeText(JSON.stringify(analysisResult, null, 2)); }}>
           📋 Copy JSON
         </button>
       </div>
-      <div className="tpl-card hover-glow" style={{ padding: 0, overflow: "hidden" }}>
+      <div className="bg-surface-container-lowest border border-outline-variant rounded p-lg transition-colors hover:border-primary" style={{ padding: 0, overflow: "hidden" }}>
         <div style={{ padding: "8px 14px", background: "var(--bg-card-hover)", borderBottom: "1px solid var(--border-color)", display: "flex", gap: 8, alignItems: "center" }}>
           {["#FF5F57","#FFBD2E","#28CA41"].map(c => <div key={c} style={{ width: 10, height: 10, borderRadius: "50%", background: c }} />)}
           <span className="font-mono text-muted" style={{ fontSize: "0.7rem" }}>analysis-result.json</span>
@@ -1125,16 +1125,16 @@ function PolicyEngineView({ policyWeights, setPolicyWeights }: any) {
     <div className="flex-col gap-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="font-bold" style={{ fontSize: "1.1rem" }}>Risk Scoring Policy Configuration</h2>
-          <p className="text-muted" style={{ fontSize: "0.78rem", marginTop: 3 }}>Tune penalty weights for heuristic indicators. Changes affect score on next analysis.</p>
+          <h2 className="font-headline-sm text-headline-sm text-on-surface">Risk Scoring Policy Configuration</h2>
+          <p className="text-on-surface-variant font-code-sm" style={{ fontSize: "0.78rem", marginTop: 3 }}>Tune penalty weights for heuristic indicators. Changes affect score on next analysis.</p>
         </div>
-        <span className="badge badge-info">Static Engine v2.1</span>
+        <span className="bg-surface-container text-on-surface-variant border border-outline-variant rounded-sm px-sm py-[2px] font-label-mono text-[11px]">Static Engine v2.1</span>
       </div>
 
       {/* Total preview */}
-      <div className="tpl-card hover-glow flex-col" style={{ background: "rgba(157,110,250,0.06)", borderColor: "rgba(157,110,250,0.25)" }}>
+      <div className="bg-surface-container-lowest border border-outline-variant rounded p-lg flex flex-col transition-colors hover:border-primary" style={{ background: "rgba(157,110,250,0.06)", borderColor: "rgba(157,110,250,0.25)" }}>
         <div className="flex justify-between items-center">
-          <span className="font-bold" style={{ fontSize: "0.85rem" }}>Maximum Possible Penalty (4 rules)</span>
+          <span className="font-headline-sm text-headline-sm text-on-surface">Maximum Possible Penalty (4 rules)</span>
           <span className="font-extrabold font-mono" style={{ fontSize: "1.5rem", color: "var(--accent-purple)" }}>
             {policyWeights.sysAlert + policyWeights.sms + policyWeights.dex + policyWeights.cert} pts
           </span>
@@ -1203,8 +1203,8 @@ function SettingsView() {
   return (
     <div className="flex-col gap-5">
       <div>
-        <h2 className="font-bold" style={{ fontSize: "1.1rem" }}>Application Settings</h2>
-        <p className="text-muted" style={{ fontSize: "0.78rem", marginTop: 3 }}>Configure integrations and analysis behavior</p>
+        <h2 className="font-headline-sm text-headline-sm text-on-surface">Application Settings</h2>
+        <p className="text-on-surface-variant font-code-sm" style={{ fontSize: "0.78rem", marginTop: 3 }}>Configure integrations and analysis behavior</p>
       </div>
 
       <div className="tpl-card hover-glow flex-col gap-1">
