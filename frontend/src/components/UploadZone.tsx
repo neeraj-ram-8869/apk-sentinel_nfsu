@@ -52,11 +52,11 @@ export default function UploadZone({ onFileSelected, isAnalyzing, fileName, file
       onClick={() => !isAnalyzing && inputRef.current?.click()}
       role="button"
       tabIndex={0}
-      className={`scan-area border-2 border-dashed rounded-lg p-xl flex flex-col items-center justify-center min-h-[300px] transition-interactive cursor-pointer group ${
+      className={`scan-area ${isAnalyzing ? "is-analyzing cursor-default" : ""} border-2 border-dashed rounded-lg p-xl flex flex-col items-center justify-center min-h-[300px] transition-interactive cursor-pointer group ${
         isDragging 
           ? "border-primary bg-primary/5 shadow-[0_0_20px_rgba(83,0,183,0.1)]" 
           : "border-outline-variant/50 bg-surface-container-lowest/50 hover:bg-surface-container-low"
-      } ${isAnalyzing ? "cursor-default" : ""}`}
+      }`}
     >
       <input
         ref={inputRef}

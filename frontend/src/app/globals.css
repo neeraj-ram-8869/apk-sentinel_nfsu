@@ -576,7 +576,7 @@ input[type="checkbox"] {
     overflow: hidden;
 }
 
-.scan-area::after {
+.scan-area.is-analyzing::after {
     content: '';
     position: absolute;
     top: 0;

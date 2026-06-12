@@ -51,11 +51,10 @@ export default function PolicyEngineView({ policyWeights, setPolicyWeights }: { 
                     {/* Visual Bar Background */}
                     <div className="absolute top-1/2 -translate-y-1/2 left-0 w-full h-3 bg-surface-container-high rounded-full overflow-hidden pointer-events-none">
                       <div 
-                        className="absolute top-0 left-0 h-full rounded-full transition-all duration-300"
-                        style={{ 
-                          width: `${barWidth}%`,
-                          backgroundColor: setting.color === "error" ? "var(--error)" : setting.color === "warning" ? "var(--accent-orange)" : "var(--primary)"
-                        }}
+                        className={`absolute top-0 left-0 h-full rounded-full transition-all duration-300 ${
+                          setting.color === "error" ? "bg-error" : setting.color === "warning" ? "bg-[#EA580C]" : "bg-primary"
+                        }`}
+                        style={{ width: `${barWidth}%` }}
                       />
                     </div>
                     {/* Interactive Input */}
