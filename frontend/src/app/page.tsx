@@ -435,7 +435,10 @@ export default function Home() {
   }, [analysisResult, scoreData, currentFile, aiNarrative, addToast]);
 
   // ── Chat submit ────────────────────────────────────────────────
-  const handleChatSubmit = useCallback(async (overrideQuestion?: string | React.MouseEvent) => {
+  const handleChatSubmit = useCallback(async (overrideQuestion?: string | React.FormEvent | React.MouseEvent) => {
+    if (overrideQuestion && typeof overrideQuestion !== "string" && 'preventDefault' in overrideQuestion) {
+      overrideQuestion.preventDefault();
+    }
     const question = (typeof overrideQuestion === "string" ? overrideQuestion : chatInput).trim();
     if (!question || !analysisResult) return;
     setChatInput("");
@@ -617,7 +620,7 @@ function ScannerView({
   expandedSeverity, setExpandedSeverity, onFileSelected, onDemoUpload, onDownloadPdf,
 }: any) {
   return (
-    <div className="flex-col gap-5">
+    <div className="flex flex-col gap-5 w-full">
       {/* Upload zone */}
       <div className="flex flex-col gap-md">
         <UploadZone

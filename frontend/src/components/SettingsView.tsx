@@ -32,10 +32,10 @@ export default function SettingsView() {
               />
             </div>
             <div className="bg-surface-container-low rounded-lg p-4 border border-outline-variant">
-              <label className="font-label-caps text-xs text-on-surface-variant block mb-2">Gemini Pro API Key</label>
+              <label className="font-label-caps text-xs text-on-surface-variant block mb-2">NVIDIA NIM API Key</label>
               <input 
                 type="password" 
-                defaultValue="AIzaSyA•••••••••••••••••••••" 
+                defaultValue="nvapi-••••••••••••••••••••" 
                 className="w-full bg-surface-container-lowest border border-outline-variant rounded px-3 py-2 text-sm font-mono-base focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
               />
             </div>

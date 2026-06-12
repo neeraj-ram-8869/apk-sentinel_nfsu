@@ -29,8 +29,8 @@ export default function AiNarrativeView({
           <p className="font-body-base text-body-base text-on-surface-variant mt-1">LLM-powered threat correlation and conversational agent</p>
         </div>
         <div className="flex items-center gap-2 bg-primary/10 px-3 py-1.5 rounded-full border border-primary/20">
-          <span className="material-symbols-outlined text-primary text-[16px]">auto_awesome</span>
-          <span className="text-sm font-medium text-primary tracking-wide">GEMINI PRO</span>
+          <span className="material-symbols-outlined text-primary text-[16px]">memory</span>
+          <span className="text-sm font-medium text-primary tracking-wide">NVIDIA NIM</span>
         </div>
       </div>
 
@@ -84,7 +84,7 @@ export default function AiNarrativeView({
                       ? "bg-tertiary-container/10 text-on-surface rounded-tr-none" 
                       : "bg-surface-container-lowest border border-outline-variant text-on-surface rounded-tl-none shadow-sm"
                   }`}>
-                    {msg.content}
+                    {msg.text || msg.content}
                   </div>
                 </div>
               ))

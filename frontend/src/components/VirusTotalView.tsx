@@ -13,9 +13,10 @@ export default function VirusTotalView({ analysisResult }: { analysisResult: any
     );
   }
 
-  // Assuming we map existing analysisResult.fileHash to a mocked VT response for UI completeness
-  const mockPositives = analysisResult.riskScore > 50 ? 12 : 0;
-  const mockTotal = 65;
+  const vt = analysisResult.analysis?.virusTotal;
+  const stats = vt?.stats || { malicious: 0, suspicious: 0, undetected: 0, harmless: 0 };
+  const mockPositives = stats.malicious + stats.suspicious;
+  const mockTotal = mockPositives + stats.undetected + stats.harmless || 65;
 
   return (
     <div className="flex-col gap-5 animate-fade-up w-full">
@@ -57,6 +58,11 @@ export default function VirusTotalView({ analysisResult }: { analysisResult: any
           }`}>
             {mockPositives > 0 ? "MALICIOUS" : "UNDETECTED"}
           </div>
+          {vt?.permalink && (
+            <a href={vt.permalink} target="_blank" rel="noreferrer" className="mt-4 px-3 py-1 border border-primary text-primary rounded flex items-center gap-2 hover:bg-primary/10 transition-colors text-xs font-label-caps">
+              <span className="material-symbols-outlined text-sm">open_in_new</span> View Full Report
+            </a>
+          )}
         </div>
 
         {/* File Identification */}

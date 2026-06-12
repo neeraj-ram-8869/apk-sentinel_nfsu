@@ -34,18 +34,18 @@ export default function DynamicAnalysisView({ analysisResult }: { analysisResult
             <span className={`material-symbols-outlined text-[32px] ${
               t.status === "error" ? "text-error" : 
               t.status === "warning" ? "text-[#ffb020]" : 
-              "text-primary"
+              "text-[#059669]"
             }`}>{t.icon}</span>
             <div className={`font-mono-base font-bold text-xs ${
               t.status === "error" ? "text-error" : 
               t.status === "warning" ? "text-[#ffb020]" : 
-              "text-primary"
+              "text-[#059669]"
             }`}>{t.code}</div>
             <div className="text-xs text-on-surface-variant font-medium text-center">{t.label}</div>
             <div className={`w-2 h-2 rounded-full mt-1 ${
               t.status === "error" ? "bg-error animate-pulse shadow-[0_0_8px_rgba(186,26,26,0.8)]" : 
-              t.status === "warning" ? "bg-[#ffb020]" : 
-              "bg-tertiary-container shadow-[0_0_8px_rgba(0,101,69,0.5)]"
+              t.status === "warning" ? "bg-[#ffb020] shadow-[0_0_8px_rgba(255,176,32,0.8)]" : 
+              "bg-[#00D15A] animate-pulse shadow-[0_0_12px_rgba(0,209,90,0.8)]"
             }`} />
           </div>
         ))}
