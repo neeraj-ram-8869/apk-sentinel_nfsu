@@ -1,6 +1,6 @@
 "use client";
 // ===================================================================
-// Session 6 â€” CodeViewer Component
+// Session 6 — CodeViewer Component
 // Displays DEX class names and suspicious API strings with filtering.
 // ===================================================================
 import { useState } from "react";
@@ -79,7 +79,7 @@ export default function CodeViewer({
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder={`Search ${tab}â€¦`}
+          placeholder={`Search ${tab}…`}
           style={{
             background: "#f8fafc", border: "1px solid var(--border-subtle)",
             borderRadius: "4px", padding: "7px 12px",
@@ -103,7 +103,7 @@ export default function CodeViewer({
                 <span style={{ color: "#A1A8B3" }}>L</span>
                 {cls.replace(/\./g, "/")}
                 <span style={{ color: "#A1A8B3" }}>;</span>
-                {isDangerous && <span style={{ color: "#D14343", marginLeft: "8px" }}>âš </span>}
+                {isDangerous && <span style={{ color: "#D14343", marginLeft: "8px" }}>⚠</span>}
               </div>
             );
           }) : <div style={{ color: "#A1A8B3" }}>No class names extracted.</div>

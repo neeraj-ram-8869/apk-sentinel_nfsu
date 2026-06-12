@@ -7,5 +7,6 @@ foreach ($path in $paths) {
   $mis = [System.Text.Encoding]::UTF8.GetString($bytes)   # currently double-decoded
   $latin1Bytes = [System.Text.Encoding]::GetEncoding(1252).GetBytes($mis)
   $fixed = [System.Text.Encoding]::UTF8.GetString($latin1Bytes)
-  [System.IO.File]::WriteAllText($path, $fixed, New-Object System.Text.UTF8Encoding($false))
+  $enc = New-Object System.Text.UTF8Encoding($false)
+  [System.IO.File]::WriteAllText($path, $fixed, $enc)
 }

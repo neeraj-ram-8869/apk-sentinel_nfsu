@@ -1,7 +1,7 @@
 "use client";
 
 // ===================================================================
-// Session 6 â€” ManifestViewer Component
+// Session 6 — ManifestViewer Component
 // Interactive collapsible tree of AndroidManifest.xml
 // ===================================================================
 
@@ -18,7 +18,7 @@ interface XmlNode {
   isLeaf: boolean;
 }
 
-// â”€â”€ Simple XML â†’ tree (good enough for well-formed manifest XML) â”€â”€â”€â”€â”€â”€
+// ── Simple XML → tree (good enough for well-formed manifest XML) ──────
 
 function parseXmlToTree(xml: string): XmlNode | null {
   try {
@@ -48,7 +48,7 @@ function domToNode(el: Element): XmlNode {
   return { tag: el.tagName, attrs, children, isLeaf: children.length === 0 };
 }
 
-// â”€â”€ Tag color palette â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Tag color palette ─────────────────────────────────────────────────
 
 const TAG_COLORS: Record<string, string> = {
   manifest:          "var(--accent-purple)",
@@ -68,7 +68,7 @@ function tagColor(tag: string): string {
   return TAG_COLORS[tag.toLowerCase()] ?? "var(--text-secondary)";
 }
 
-// â”€â”€ Node renderer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Node renderer ─────────────────────────────────────────────────────
 
 function XmlNodeView({
   node,
@@ -114,7 +114,7 @@ function XmlNodeView({
         {/* Chevron */}
         {hasChildren ? (
           <span style={{ color: "var(--text-muted)", fontSize: "0.65rem", marginTop: "3px", width: "10px" }}>
-            {open ? "â–¾" : "â–¸"}
+            {open ? "▾" : "▸"}
           </span>
         ) : (
           <span style={{ width: "10px" }} />
@@ -148,7 +148,7 @@ function XmlNodeView({
             fontSize: "0.6rem", padding: "1px 5px", borderRadius: "3px",
             fontWeight: 800, marginLeft: "6px",
           }}>
-            âš  DANGEROUS
+            ⚠ DANGEROUS
           </span>
         )}
       </div>
@@ -170,7 +170,7 @@ function XmlNodeView({
   );
 }
 
-// â”€â”€ Main component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Main component ────────────────────────────────────────────────────
 
 export default function ManifestViewer({ xmlString }: ManifestViewerProps) {
   const [mode, setMode] = useState<"tree" | "raw">("tree");
@@ -196,7 +196,7 @@ export default function ManifestViewer({ xmlString }: ManifestViewerProps) {
               borderRadius: "4px 4px 0 0",
             }}
           >
-            {m === "tree" ? "ðŸŒ² Tree View" : "ðŸ“„ Raw XML"}
+            {m === "tree" ? "🌲 Tree View" : "📄 Raw XML"}
           </button>
         ))}
       </div>
