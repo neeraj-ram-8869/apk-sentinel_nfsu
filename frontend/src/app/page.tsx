@@ -140,7 +140,7 @@ const ScoreArc = ({ score, tier }: { score: number; tier: string }) => {
   const offset = circ - (circ * score) / 100;
   return (
     <svg width="280" height="280" viewBox="0 0 280 280" style={{ transform: "rotate(-90deg)" }}>
-      <circle cx="140" cy="140" r={r} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="12" />
+      <circle cx="140" cy="140" r={r} fill="none" stroke="var(--arc-track)" strokeWidth="12" />
       <circle
         cx="140" cy="140" r={r} fill="none"
         stroke={verdictColor(tier)}
@@ -737,7 +737,7 @@ function DashboardView({ ledger, onNavigate }: { ledger: LedgerItem[]; onNavigat
                   <td style={{ padding: "12px", color: "var(--text-muted)" }}>{item.time}</td>
                   <td style={{ padding: "12px" }}>
                     <div className="flex items-center gap-2">
-                      <div style={{ width: 60, height: 4, borderRadius: 999, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
+                      <div style={{ width: 60, height: 4, borderRadius: 999, background: "rgba(0,0,0,0.07)", overflow: "hidden" }}>
                         <div style={{ width: `${item.score}%`, height: "100%", background: verdictColor(item.tier), borderRadius: 999, transition: "width 1s ease" }} />
                       </div>
                       <span style={{ fontFamily: "var(--font-mono)", fontWeight: 700, color: verdictColor(item.tier) }}>{item.score}</span>
@@ -930,7 +930,7 @@ function ScannerView({
               <div style={{ display: "grid", gridTemplateColumns: "repeat(10, 1fr)", gap: 3 }}>
                 {Array.from({ length: Math.max(30, analysisResult.manifest.permissions.length + 5) }).map((_, i) => {
                   const perm = analysisResult.analysis.permissions[i];
-                  const color = !perm ? "rgba(255,255,255,0.04)" :
+                  const color = !perm ? "rgba(0,0,0,0.05)" :
                     perm.severity === "CRITICAL" ? "var(--accent-red)" :
                     perm.severity === "HIGH"     ? "var(--accent-orange)" :
                     perm.severity === "MEDIUM"   ? "var(--accent-yellow)" : "var(--accent-green)";
