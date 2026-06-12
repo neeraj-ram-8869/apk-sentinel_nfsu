@@ -1,117 +1,125 @@
+"use client";
+
 import React, { useRef, useEffect } from "react";
 
-export function AiNarrativeView({ narrative, loading, chatHistory, chatInput, setChatInput, onChatSubmit, chatLoading, hasResult }: any) {
-  const chatRef = useRef<HTMLDivElement>(null);
+export default function AiNarrativeView({
+  narrative, loading, chatHistory, chatInput, setChatInput, onChatSubmit, chatLoading, hasResult
+}: any) {
+  const bottomRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight;
-  }, [chatHistory]);
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chatHistory, chatLoading]);
+
+  if (!hasResult) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] opacity-60">
+        <span className="material-symbols-outlined text-[64px] text-primary mb-4">psychology</span>
+        <h2 className="font-headline-sm text-headline-sm text-on-surface">No Threat Data</h2>
+        <p className="text-on-surface-variant font-body-base text-body-base">Scan an APK to generate an AI threat report.</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex flex-col gap-xl h-full pb-xl">
-      <div className="flex justify-between items-end border-b border-outline-variant pb-md pt-lg">
+    <div className="flex-col gap-5 animate-fade-up w-full h-[calc(100vh-140px)] flex">
+      <div className="flex justify-between items-center shrink-0">
         <div>
-          <h2 className="font-headline-lg text-headline-lg text-on-surface">AI Threat Report</h2>
-          <p className="font-body-md text-body-md text-on-surface-variant mt-sm">NVIDIA NIM Llama-3.1-70B generative threat narrative & interactive Q&A.</p>
+          <h2 className="font-display-lg text-display-lg font-bold text-on-surface">AI Threat Intelligence</h2>
+          <p className="font-body-base text-body-base text-on-surface-variant mt-1">LLM-powered threat correlation and conversational agent</p>
         </div>
-        <div className="hidden md:flex items-center gap-sm bg-primary-container text-on-primary-fixed-variant px-sm py-[4px] rounded font-label-mono text-label-mono">
-          <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>smart_toy</span>
-          AI-Powered
+        <div className="flex items-center gap-2 bg-primary/10 px-3 py-1.5 rounded-full border border-primary/20">
+          <span className="material-symbols-outlined text-primary text-[16px]">auto_awesome</span>
+          <span className="text-sm font-medium text-primary tracking-wide">GEMINI PRO</span>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-gutter flex-1 min-h-[500px]">
-        {/* Narrative Panel */}
-        <div className="bg-surface-container-lowest border border-outline-variant rounded flex flex-col overflow-hidden">
-          <div className="px-lg py-md border-b border-outline-variant bg-surface-bright/50 flex items-center gap-sm">
-            <span className="material-symbols-outlined text-primary">article</span>
-            <h3 className="font-headline-sm text-headline-sm">Generated Threat Narrative</h3>
-            {loading && (
-              <span className="ml-auto flex items-center gap-xs font-code-sm text-code-sm text-primary">
-                <span className="material-symbols-outlined animate-spin" style={{ fontSize: "14px" }}>autorenew</span>
-                Generating...
-              </span>
-            )}
-          </div>
-          <div className="p-lg flex-1 overflow-y-auto">
-            {loading ? (
-              <div className="flex flex-col gap-md animate-pulse">
-                {[0.9, 0.75, 0.85, 0.6].map((w, i) => (
-                  <div key={i} className="h-4 bg-surface-variant rounded" style={{ width: `${w * 100}%` }} />
-                ))}
-              </div>
-            ) : narrative ? (
-              <p className="font-body-md text-body-md text-on-surface-variant whitespace-pre-wrap leading-relaxed">{narrative}</p>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-full opacity-50">
-                <span className="material-symbols-outlined mb-sm" style={{ fontSize: "48px" }}>psychology_alt</span>
-                <p className="font-code-sm text-code-sm">Upload an APK to generate a threat narrative.</p>
-              </div>
-            )}
-          </div>
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-lg flex-1 min-h-0">
+        
+        {/* Left: Summary Report */}
+        <div className="md:col-span-5 bg-[rgba(255,255,255,0.7)] backdrop-blur-[12px] border border-[rgba(225,227,242,0.8)] shadow-sm rounded-xl p-6 flex flex-col overflow-y-auto">
+          <h3 className="font-label-caps text-label-caps text-on-surface-variant mb-4 flex items-center gap-2">
+            <span className="material-symbols-outlined text-[16px]">summarize</span> Executive Summary
+          </h3>
+          {loading ? (
+            <div className="flex flex-col gap-3">
+              <div className="h-4 bg-outline-variant/30 rounded animate-pulse w-3/4"></div>
+              <div className="h-4 bg-outline-variant/30 rounded animate-pulse w-full"></div>
+              <div className="h-4 bg-outline-variant/30 rounded animate-pulse w-5/6"></div>
+              <div className="h-4 bg-outline-variant/30 rounded animate-pulse w-4/5 mt-4"></div>
+              <div className="h-4 bg-outline-variant/30 rounded animate-pulse w-full"></div>
+            </div>
+          ) : (
+            <div className="prose prose-sm max-w-none text-on-surface-variant leading-relaxed">
+              {narrative || "No narrative generated yet. Re-scan the APK to trigger generation."}
+            </div>
+          )}
         </div>
 
-        {/* Interactive Chat Panel */}
-        <div className="bg-surface-container-lowest border border-outline-variant rounded flex flex-col overflow-hidden">
-          <div className="px-lg py-md border-b border-outline-variant bg-surface-bright/50 flex items-center gap-sm">
-            <span className="material-symbols-outlined text-primary">chat</span>
-            <h3 className="font-headline-sm text-headline-sm">Ask the AI Analyst</h3>
+        {/* Right: Conversational Chat */}
+        <div className="md:col-span-7 bg-[rgba(255,255,255,0.7)] backdrop-blur-[12px] border border-[rgba(225,227,242,0.8)] shadow-sm rounded-xl flex flex-col overflow-hidden">
+          <div className="p-4 border-b border-outline-variant/30 bg-surface-container-lowest/50">
+            <h3 className="font-label-caps text-label-caps text-on-surface-variant flex items-center gap-2">
+              <span className="material-symbols-outlined text-[16px]">forum</span> Investigative Chat
+            </h3>
           </div>
           
-          <div ref={chatRef} className="flex-1 p-lg overflow-y-auto flex flex-col gap-md">
-            {chatHistory.length === 0 && (
-              <div className="flex flex-col gap-sm text-on-surface-variant font-code-sm text-code-sm">
-                <p>Suggested questions about the analyzed APK:</p>
-                {["Why is this rated malicious?", "Explain the SMS permission risk", "What is DexClassLoader?"].map(q => (
-                  <button key={q} className="text-left text-primary hover:underline hover:bg-surface-container py-[2px] px-sm rounded transition-colors" onClick={() => { if (hasResult) { onChatSubmit(q); } }}>
-                    → {q}
-                  </button>
-                ))}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-surface-container-low/30">
+            {chatHistory.length === 0 ? (
+              <div className="h-full flex items-center justify-center text-on-surface-variant/50 italic text-sm">
+                Ask questions about the decompiled source code or threat behavior...
               </div>
-            )}
-            
-            {chatHistory.map((msg: any, i: number) => (
-              <div key={`chat-${i}`} className={`flex flex-col max-w-[85%] ${msg.role === "user" ? "self-end items-end" : "self-start items-start"}`}>
-                <div className={`p-sm rounded-lg font-body-md text-body-md ${
-                  msg.role === "user" 
-                    ? "bg-primary text-on-primary rounded-tr-none" 
-                    : "bg-surface-variant text-on-surface-variant rounded-tl-none border border-outline-variant"
-                }`}>
-                  {msg.text}
+            ) : (
+              chatHistory.map((msg: any, idx: number) => (
+                <div key={idx} className={`flex gap-3 max-w-[85%] ${msg.role === "user" ? "ml-auto flex-row-reverse" : ""}`}>
+                  <div className={`w-8 h-8 rounded-full flex shrink-0 items-center justify-center ${
+                    msg.role === "user" ? "bg-tertiary-container text-white" : "bg-primary text-white"
+                  }`}>
+                    <span className="material-symbols-outlined text-[18px]">
+                      {msg.role === "user" ? "person" : "robot_2"}
+                    </span>
+                  </div>
+                  <div className={`p-3 rounded-2xl ${
+                    msg.role === "user" 
+                      ? "bg-tertiary-container/10 text-on-surface rounded-tr-none" 
+                      : "bg-surface-container-lowest border border-outline-variant text-on-surface rounded-tl-none shadow-sm"
+                  }`}>
+                    {msg.content}
+                  </div>
                 </div>
-                <span className="font-label-mono text-[10px] text-outline mt-xs">
-                  {msg.role === "user" ? "You" : "NIM AI"}
-                </span>
-              </div>
-            ))}
-            
+              ))
+            )}
             {chatLoading && (
-              <div className="self-start flex items-center gap-xs text-primary font-code-sm text-code-sm">
-                <span className="material-symbols-outlined animate-spin" style={{ fontSize: "14px" }}>autorenew</span>
-                NIM is thinking...
+              <div className="flex gap-3 max-w-[85%]">
+                <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center shrink-0">
+                  <span className="material-symbols-outlined text-[18px]">robot_2</span>
+                </div>
+                <div className="p-3 rounded-2xl bg-surface-container-lowest border border-outline-variant rounded-tl-none flex items-center gap-1">
+                  <div className="w-2 h-2 bg-primary/50 rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-primary/50 rounded-full animate-bounce" style={{animationDelay: "0.2s"}}></div>
+                  <div className="w-2 h-2 bg-primary/50 rounded-full animate-bounce" style={{animationDelay: "0.4s"}}></div>
+                </div>
               </div>
             )}
+            <div ref={bottomRef} />
           </div>
 
-          <div className="p-md border-t border-outline-variant bg-surface-bright/50">
-            <div className="flex gap-sm">
-              <input
-                type="text"
-                className="flex-1 border border-outline-variant rounded px-md py-sm font-body-md text-body-md bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary outline-none text-on-surface placeholder:text-outline"
-                value={chatInput}
-                onChange={e => setChatInput(e.target.value)}
-                onKeyDown={e => e.key === "Enter" && !e.shiftKey && onChatSubmit()}
-                placeholder={hasResult ? "Ask about this APK..." : "Upload an APK first..."}
-                disabled={!hasResult || chatLoading}
-              />
-              <button 
-                className="bg-primary text-on-primary px-lg py-sm rounded font-label-mono text-label-mono hover:bg-primary-container disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                onClick={onChatSubmit} 
-                disabled={!hasResult || chatLoading || !chatInput.trim()}
-              >
-                Send
-              </button>
-            </div>
-          </div>
+          <form onSubmit={onChatSubmit} className="p-3 bg-surface-container-lowest/80 border-t border-outline-variant/30 flex gap-2">
+            <input 
+              value={chatInput}
+              onChange={e => setChatInput(e.target.value)}
+              placeholder="Ask the AI about specific findings..."
+              className="flex-1 bg-surface-container-low border border-outline-variant rounded-full px-4 py-2 text-sm focus:outline-none focus:border-primary transition-colors text-on-surface"
+              disabled={chatLoading}
+            />
+            <button 
+              type="submit" 
+              disabled={chatLoading || !chatInput.trim()}
+              className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center shrink-0 disabled:opacity-50 hover:bg-primary/90 transition-colors shadow-md"
+            >
+              <span className="material-symbols-outlined text-[18px]">send</span>
+            </button>
+          </form>
         </div>
       </div>
     </div>

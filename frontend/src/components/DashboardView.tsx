@@ -1,162 +1,135 @@
+"use client";
+
 import React from "react";
-import AnimatedCount from "./AnimatedCount";
 
-export interface LedgerItem {
-  id: string;
-  pkg: string;
-  time: string;
-  score: number;
-  tier: string;
-  critCount: number;
-  fileSize?: number;
-}
-
-export function DashboardView({ ledger, onNavigate }: { ledger: LedgerItem[]; onNavigate: () => void }) {
-  const totalScans = ledger.length;
-  const malCount   = ledger.filter(l => l.tier === "MALICIOUS" || l.tier === "FRAUDULENT").length;
-  const avgScore   = ledger.length ? Math.round(ledger.reduce((s, l) => s + l.score, 0) / ledger.length) : 0;
-  const cleanCount = ledger.filter(l => l.tier === "BENIGN").length;
+export default function DashboardView({ ledger, onNavigate }: { ledger: any[], onNavigate: () => void }) {
+  const threatsFound = ledger.reduce((acc, l) => acc + (l.result?.analysis?.findings?.filter((f: any) => f.severity === "CRITICAL" || f.severity === "HIGH")?.length || 0), 0);
+  const avgRisk = ledger.length > 0 ? Math.round(ledger.reduce((acc, l) => acc + (l.result?.riskScore || 0), 0) / ledger.length) : 0;
+  const cleanApks = ledger.filter(l => l.result?.riskScore < 30).length;
 
   return (
-    <div className="flex flex-col gap-xl">
-      {/* Header Section */}
-      <div className="flex justify-between items-end border-b border-outline-variant pb-md pt-lg md:pt-xl">
+    <div className="flex-1 w-full animate-fade-up">
+      {/* Header */}
+      <header className="flex justify-between items-end mb-8">
         <div>
-          <h2 className="font-headline-lg text-headline-lg text-on-surface">Dashboard</h2>
-          <p className="font-body-md text-body-md text-on-surface-variant mt-sm">System overview and master analysis ledger.</p>
+          <h2 className="font-display-lg text-display-lg font-bold text-on-surface">Dashboard</h2>
         </div>
-        <div className="hidden md:block">
-          <button onClick={onNavigate} className="bg-primary text-on-primary font-label-mono text-label-mono px-lg py-sm rounded hover:bg-primary-container transition-colors flex items-center gap-sm">
-            <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>add</span>
-            Scan New APK
-          </button>
+        <div className="flex items-center gap-2 bg-tertiary-container/10 px-3 py-1.5 rounded-full border border-tertiary-container/20">
+          <div className="w-2.5 h-2.5 rounded-full bg-tertiary-container animate-pulse"></div>
+          <span className="text-sm font-medium text-tertiary-container">Engine Online</span>
         </div>
-      </div>
+      </header>
 
-      {/* Summary Metrics (Bento Grid Style) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
-        <div className="bg-surface-container-lowest border border-outline-variant rounded p-lg flex flex-col justify-between">
-          <div className="flex justify-between items-start mb-lg">
-            <span className="font-label-mono text-label-mono text-on-surface-variant uppercase">Total Scans</span>
-            <span className="material-symbols-outlined text-outline">query_stats</span>
-          </div>
-          <div>
-            <div className="font-headline-lg text-headline-lg"><AnimatedCount value={totalScans} /></div>
-            <div className="font-code-sm text-code-sm text-outline mt-xs flex items-center gap-xs">
-              <span className="material-symbols-outlined text-primary" style={{ fontSize: "14px" }}>trending_up</span>
-              Session Total
+      {/* Metrics Grid */}
+      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+        <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 flex flex-col relative overflow-hidden group hover:border-primary transition-colors">
+          <div className="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full opacity-50 group-hover:scale-110 transition-transform blur-xl"></div>
+          <div className="flex items-center justify-between mb-4 relative z-10">
+            <h3 className="text-on-surface-variant font-medium text-sm">Total Scans</h3>
+            <div className="w-8 h-8 rounded-lg bg-primary/5 flex items-center justify-center text-primary">
+              <span className="material-symbols-outlined text-lg">microbiology</span>
             </div>
           </div>
+          <div className="text-4xl font-bold text-on-surface relative z-10">{ledger.length}</div>
         </div>
 
-        <div className="bg-surface-container-lowest border border-error rounded p-lg flex flex-col justify-between relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-error-container/20 to-transparent pointer-events-none"></div>
-          <div className="flex justify-between items-start mb-lg relative z-10">
-            <span className="font-label-mono text-label-mono text-error uppercase">Threats Found</span>
-            <span className="material-symbols-outlined text-error">bug_report</span>
+        <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 flex flex-col relative overflow-hidden group hover:border-error transition-colors">
+          <div className="absolute -right-4 -top-4 w-24 h-24 bg-error/10 rounded-full opacity-50 group-hover:scale-110 transition-transform blur-xl"></div>
+          <div className="flex items-center justify-between mb-4 relative z-10">
+            <h3 className="text-on-surface-variant font-medium text-sm">Threats Found</h3>
+            <div className="w-8 h-8 rounded-lg bg-error/5 flex items-center justify-center text-error">
+              <span className="material-symbols-outlined text-lg">bug_report</span>
+            </div>
           </div>
-          <div className="relative z-10">
-            <div className="font-headline-lg text-headline-lg text-error"><AnimatedCount value={malCount} /></div>
-            <div className="font-code-sm text-code-sm text-outline mt-xs">Requires immediate attention</div>
+          <div className="text-4xl font-bold text-on-surface relative z-10">{threatsFound}</div>
+        </div>
+
+        <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 flex flex-col relative overflow-hidden group hover:border-[#ffb020] transition-colors">
+          <div className="absolute -right-4 -top-4 w-24 h-24 bg-[#ffb020]/10 rounded-full opacity-50 group-hover:scale-110 transition-transform blur-xl"></div>
+          <div className="flex items-center justify-between mb-4 relative z-10">
+            <h3 className="text-on-surface-variant font-medium text-sm">Average Risk</h3>
+            <div className="w-8 h-8 rounded-lg bg-[#ffb020]/5 flex items-center justify-center text-[#ffb020]">
+              <span className="material-symbols-outlined text-lg">warning</span>
+            </div>
+          </div>
+          <div className="flex items-baseline gap-1 relative z-10">
+            <span className="text-4xl font-bold text-on-surface">{avgRisk}</span>
+            <span className="text-sm font-medium text-on-surface-variant">/100</span>
           </div>
         </div>
 
-        <div className="bg-surface-container-lowest border border-outline-variant rounded p-lg flex flex-col justify-between">
-          <div className="flex justify-between items-start mb-lg">
-            <span className="font-label-mono text-label-mono text-on-surface-variant uppercase">Average Risk</span>
-            <span className="material-symbols-outlined text-outline">speed</span>
+        <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 flex flex-col relative overflow-hidden group hover:border-tertiary-container transition-colors">
+          <div className="absolute -right-4 -top-4 w-24 h-24 bg-tertiary-container/10 rounded-full opacity-50 group-hover:scale-110 transition-transform blur-xl"></div>
+          <div className="flex items-center justify-between mb-4 relative z-10">
+            <h3 className="text-on-surface-variant font-medium text-sm">Clean APKs</h3>
+            <div className="w-8 h-8 rounded-lg bg-tertiary-container/5 flex items-center justify-center text-tertiary-container">
+              <span className="material-symbols-outlined text-lg">verified</span>
+            </div>
           </div>
-          <div>
-            <div className="font-headline-lg text-headline-lg"><AnimatedCount value={avgScore} /><span className="text-headline-sm text-outline">/100</span></div>
-            <div className="font-code-sm text-code-sm text-outline mt-xs">Stable index</div>
-          </div>
+          <div className="text-4xl font-bold text-on-surface relative z-10">{cleanApks}</div>
         </div>
-
-        <div className="bg-surface-container-lowest border border-outline-variant rounded p-lg flex flex-col justify-between">
-          <div className="flex justify-between items-start mb-lg">
-            <span className="font-label-mono text-label-mono text-on-surface-variant uppercase">Clean APKs</span>
-            <span className="material-symbols-outlined text-outline">verified_user</span>
-          </div>
-          <div>
-            <div className="font-headline-lg text-headline-lg"><AnimatedCount value={cleanCount} /></div>
-            <div className="font-code-sm text-code-sm text-outline mt-xs">Passing rate</div>
-          </div>
-        </div>
-      </div>
+      </section>
 
       {/* Master Scan Ledger */}
-      <div className="bg-surface-container-lowest border border-outline-variant rounded flex flex-col flex-1">
-        <div className="px-lg py-md border-b border-outline-variant flex justify-between items-center bg-surface-bright/50">
-          <h3 className="font-headline-sm text-headline-sm">Master Scan Ledger</h3>
-          <div className="flex gap-md">
-            <div className="relative">
-              <span className="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-outline" style={{ fontSize: "16px" }}>search</span>
-              <input className="pl-[28px] pr-sm py-[4px] border border-outline-variant rounded font-code-sm text-code-sm bg-transparent focus:border-primary focus:ring-0 focus:outline-none w-48 text-on-surface placeholder:text-outline transition-colors" placeholder="Filter SHA-256..." type="text" />
-            </div>
-            <button className="border border-outline-variant rounded px-sm py-[4px] font-label-mono text-label-mono hover:bg-surface-container transition-colors flex items-center gap-xs">
-              <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>filter_list</span>
-              Filter
-            </button>
+      <section className="animate-fade-up">
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h3 className="text-xl font-bold text-on-surface">Master Scan Ledger</h3>
+            <p className="text-sm text-on-surface-variant mt-1">All APKs analyzed in this session</p>
           </div>
+          <button 
+            onClick={onNavigate}
+            className="bg-primary hover:bg-primary/90 text-on-primary px-5 py-2.5 rounded-lg font-medium shadow-sm transition-colors flex items-center gap-2 overflow-hidden relative"
+          >
+            <span className="material-symbols-outlined text-[18px]">add</span>
+            New Scan
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-[scanSweep_3s_infinite_linear]"></div>
+          </button>
         </div>
 
-        <div className="overflow-x-auto">
-          {ledger.length === 0 ? (
-            <div className="flex flex-col items-center justify-center p-xl opacity-50">
-               <span className="material-symbols-outlined" style={{ fontSize: "48px" }}>science</span>
-               <div className="mt-sm font-code-sm">No APKs analyzed yet.</div>
+        {ledger.length === 0 ? (
+          <div className="bg-surface-container-lowest/50 backdrop-blur-md border border-outline-variant rounded-xl p-12 flex flex-col items-center justify-center text-center min-h-[300px]">
+            <div className="w-16 h-16 bg-primary/5 rounded-full flex items-center justify-center text-2xl mb-4 shadow-inner text-primary">
+              <span className="material-symbols-outlined text-[32px]">science</span>
             </div>
-          ) : (
-            <table className="w-full text-left border-collapse whitespace-nowrap">
-              <thead>
-                <tr className="border-b border-outline-variant bg-surface-container-low/50">
-                  <th className="px-lg py-md font-label-mono text-label-mono text-on-surface-variant font-medium">Package Name</th>
-                  <th className="px-lg py-md font-label-mono text-label-mono text-on-surface-variant font-medium">Time Scanned</th>
-                  <th className="px-lg py-md font-label-mono text-label-mono text-on-surface-variant font-medium">Status</th>
-                  <th className="px-lg py-md font-label-mono text-label-mono text-on-surface-variant font-medium text-right">Risk Score</th>
-                </tr>
-              </thead>
-              <tbody className="font-code-sm text-code-sm">
-                {ledger.map((item, i) => {
-                  const isBad = item.tier === "MALICIOUS" || item.tier === "FRAUDULENT";
-                  const isSuspicious = item.tier === "SUSPICIOUS";
-                  
-                  return (
-                    <tr key={`${item.time}-${i}`} className="border-b border-outline-variant table-row-hover cursor-pointer transition-colors">
-                      <td className="px-lg py-md">
-                        <div className="font-medium text-on-surface">{item.pkg}</div>
-                        <div className="text-outline text-[10px] mt-xs">{item.id}</div>
-                      </td>
-                      <td className="px-lg py-md text-outline font-mono">{item.time}</td>
-                      <td className="px-lg py-md">
-                        {isBad ? (
-                          <span className="inline-flex items-center gap-xs px-sm py-[2px] bg-[#FEF2F2] text-[#B91C1C] border border-[#B91C1C] rounded-sm font-label-mono text-[11px]">
-                            <span className="material-symbols-outlined" style={{ fontSize: "12px" }}>warning</span>
-                            High Risk
-                          </span>
-                        ) : isSuspicious ? (
-                          <span className="inline-flex items-center gap-xs px-sm py-[2px] bg-[#FFFBEB] text-[#B45309] border border-[#B45309] rounded-sm font-label-mono text-[11px]">
-                            <span className="material-symbols-outlined" style={{ fontSize: "12px" }}>privacy_tip</span>
-                            Suspicious
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-xs px-sm py-[2px] bg-[#ECFDF5] text-[#047857] border border-[#047857] rounded-sm font-label-mono text-[11px]">
-                            <span className="material-symbols-outlined" style={{ fontSize: "12px" }}>check_circle</span>
-                            Clean
-                          </span>
-                        )}
-                      </td>
-                      <td className={`px-lg py-md text-right font-mono ${isBad ? 'text-error font-bold' : isSuspicious ? 'text-[#B45309] font-medium' : ''}`}>
-                        {item.score}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          )}
-        </div>
-      </div>
+            <h4 className="font-headline-sm text-headline-sm text-on-surface mb-2">No APKs analyzed yet.</h4>
+            <p className="text-on-surface-variant max-w-sm font-body-base text-body-base">
+              Upload your first APK to begin threat analysis, code forensics, and dynamic behavior monitoring.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {ledger.map((entry, idx) => (
+              <div key={idx} className="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 flex justify-between items-center hover:border-primary transition-colors cursor-pointer group">
+                <div className="flex items-center gap-4">
+                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+                    entry.result?.riskTier === "CRITICAL" ? "bg-error/10 text-error" :
+                    entry.result?.riskTier === "HIGH" ? "bg-[#ffb020]/10 text-[#ffb020]" :
+                    "bg-tertiary-container/10 text-tertiary-container"
+                  }`}>
+                    <span className="material-symbols-outlined">
+                      {entry.result?.riskTier === "CRITICAL" ? "dangerous" : entry.result?.riskTier === "HIGH" ? "warning" : "verified"}
+                    </span>
+                  </div>
+                  <div>
+                    <h4 className="font-body-bold text-on-surface">{entry.file.name}</h4>
+                    <p className="text-on-surface-variant text-sm mt-1">
+                      {new Date(entry.timestamp).toLocaleTimeString()} • {Math.round(entry.file.size / 1024 / 1024 * 10) / 10} MB
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-8">
+                  <div className="text-right hidden sm:block">
+                    <p className="text-on-surface-variant text-xs mb-1 uppercase tracking-wider font-bold">Risk Score</p>
+                    <p className="font-mono-stat text-xl font-black text-on-surface">{entry.result?.riskScore}/100</p>
+                  </div>
+                  <span className="material-symbols-outlined text-outline group-hover:text-primary transition-colors">chevron_right</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   );
 }
