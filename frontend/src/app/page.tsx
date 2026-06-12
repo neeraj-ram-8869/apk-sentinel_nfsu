@@ -612,25 +612,26 @@ function ScannerView({
   return (
     <div className="flex-col gap-5">
       {/* Upload zone */}
-      <div className="bg-surface-container-lowest border border-outline-variant rounded p-lg" style={{ padding: 0, overflow: "hidden" }}>
-        <div className="flex items-center gap-4" style={{ padding: "18px 20px", borderBottom: analysisResult ? "1px solid var(--border-outline-variant)" : undefined }}>
-          <div className="flex-1">
-            <UploadZone
-              onFileSelected={onFileSelected}
-              isAnalyzing={isAnalyzing}
-              fileName={currentFile?.name}
-              fileSize={currentFile?.size}
-            />
-          </div>
-          <div className="flex-col gap-2" style={{ flexShrink: 0 }}>
-            <button className="bg-[#ECFDF5] text-[#047857] border border-[#047857] font-label-mono text-[13px] px-md py-[6px] rounded hover:bg-[#D1FAE5] transition-colors" onClick={() => onDemoUpload("good")}>
-              ✓ Simulate: Verified App
+      <div className="flex flex-col gap-md">
+        <UploadZone
+          onFileSelected={onFileSelected}
+          isAnalyzing={isAnalyzing}
+          fileName={currentFile?.name}
+          fileSize={currentFile?.size}
+        />
+        
+        {!isAnalyzing && !analysisResult && (
+          <div className="flex justify-center gap-md mt-sm">
+            <button className="bg-[#ECFDF5] text-[#047857] border border-[#047857] font-label-mono text-[13px] px-lg py-sm rounded-lg hover:bg-[#D1FAE5] transition-colors flex items-center shadow-sm" onClick={() => onDemoUpload("good")}>
+              <span className="material-symbols-outlined mr-xs text-[18px]">verified</span>
+              Simulate: Verified App
             </button>
-            <button className="bg-[#FEF2F2] text-[#B91C1C] border border-[#B91C1C] font-label-mono text-[13px] px-md py-[6px] rounded hover:bg-[#FEE2E2] transition-colors animate-pulse" onClick={() => onDemoUpload("bad")}>
-              ☠ Inject: Cerberus Dropper
+            <button className="bg-[#FEF2F2] text-[#B91C1C] border border-[#B91C1C] font-label-mono text-[13px] px-lg py-sm rounded-lg hover:bg-[#FEE2E2] transition-colors flex items-center shadow-sm" onClick={() => onDemoUpload("bad")}>
+              <span className="material-symbols-outlined mr-xs text-[18px]">bug_report</span>
+              Inject: Cerberus Dropper
             </button>
           </div>
-        </div>
+        )}
 
         {/* Live log */}
         {(isAnalyzing || logs.length > 0) && (
