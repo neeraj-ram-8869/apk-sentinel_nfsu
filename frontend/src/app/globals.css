@@ -14,14 +14,14 @@
 
 :root {
   /* ── Surfaces ──────────────────────────────────────────────────── */
-  --bg-main:        #EEF1FA;   /* cool slate-blue base — unambiguously "light" */
+  --bg-main:        #F8FAFC;   /* Stitch export Level 0 Base */
   --bg-sidebar:     #FFFFFF;
   --bg-card:        #FFFFFF;
   --bg-card-hover:  #F6F7FE;
   --bg-elevated:    #E8EBFA;
 
   /* ── Text ───────────────────────────────────────────────────────── */
-  --text-primary:   #0E0F22;   /* near-black with a blue undertone */
+  --text-primary:   #1d1a24;   /* Matches on-surface */
   --text-secondary: #353760;   /* dark indigo-slate */
   --text-muted:     #8B8DAE;   /* medium cool-gray */
   --text-dim:       #C3C5DA;   /* very light for disabled / decorative */
