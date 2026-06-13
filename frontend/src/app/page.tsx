@@ -299,13 +299,9 @@ export default function Home() {
       const generatedScore = calculateScore(input);
 
       setLedger(prev => [{
-        id: file.name,
-        pkg: result.manifest.packageName || "unknown.pkg",
-        time: new Date().toLocaleTimeString(),
-        score: generatedScore.score,
-        tier: generatedScore.tier,
-        critCount: result.analysis.findings.filter(f => f.severity === "CRITICAL").length,
-        fileSize: file.size,
+        file,
+        result: { ...result, riskScore: generatedScore.score, riskTier: generatedScore.tier },
+        timestamp: Date.now()
       }, ...prev]);
 
       addToast(
