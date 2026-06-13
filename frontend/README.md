@@ -1,36 +1,39 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# APK Sentinel 🛡️
 
-## Getting Started
+**Hybrid Static-Dynamic APK Security Console**
 
-First, run the development server:
+APK Sentinel is an advanced, automated mobile malware analysis platform designed to reverse-engineer, scan, and score Android APK files. Built for the IIT-H Hackathon, its core intent is to democratize mobile cybersecurity by combining static binary extraction, simulated dynamic behavioral tracing, external threat intelligence, and generative AI to provide comprehensive, accessible security audits of any Android application.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Our mission is to help researchers, analysts, and everyday users understand the true intent and potential risks hidden inside Android applications before they install them.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🌟 Available Documentation & Features
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 1. Deep Static Analysis
+- **Manifest Parsing:** Extracts `AndroidManifest.xml` to analyze exported components, backup rules, and debuggable flags.
+- **Permission Profiling:** Identifies and flags dangerous permissions (e.g., `SYSTEM_ALERT_WINDOW`, `RECEIVE_SMS`) and dangerous combinations (e.g., Overlay + Internet).
+- **Certificate Integrity:** Validates APK signatures, identifying debug keys and self-signed, untrusted certificates.
+- **DEX String Extraction:** Scans Dalvik Executable strings for hardcoded Network Indicators (URLs, IPs) and known malicious SDK footprints (e.g., `DexClassLoader`, `AccessibilityService`).
 
-## Learn More
+### 2. Simulated Dynamic Tracing (`aparoid` integration)
+- Simulates runtime behavioral monitoring.
+- Tracks file system reads/writes, network sockets, crypto operations, and dynamic code loading.
 
-To learn more about Next.js, take a look at the following resources:
+### 3. AI-Powered Threat Narratives (NVIDIA NIM)
+- Integrates with the **NVIDIA NIM API** (powered by `meta/llama-3.1-8b-instruct`).
+- Automatically feeds static analysis metrics into the LLM to generate a human-readable, executive threat narrative summarizing the exact risks posed by the application.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 4. Global Threat Intelligence (VirusTotal)
+- Hashes the uploaded APK and queries the **VirusTotal v3 API**.
+- Retrieves community consensus and detection ratios from 60+ security vendors to validate findings and eliminate false positives for commercial apps (like WhatsApp or PhonePe).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 5. Automated PDF Reporting
+- Generates official, paginated PDF cybersecurity reports.
+- Includes executive summaries, permission lists, network indicators, and the complete AI threat narrative.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## ⚖️ Legal Disclaimer
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+*APK Sentinel is developed for educational and cybersecurity auditing purposes. The findings derived from static analysis patterns and AI-driven interpretation may occasionally produce false positives or false negatives. This report does not constitute legally binding forensic evidence. Users must perform independent verification before blacklisting or authorizing applications in enterprise environments.*
