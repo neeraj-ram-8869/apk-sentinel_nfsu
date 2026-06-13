@@ -57,7 +57,14 @@ export function useAnalysis() {
           } else if (vtRes.ok) {
             const vtData = await vtRes.json();
             analysis.virusTotal = vtData;
-            emitAnalysisEvent(onEvent, 100, `SUCCESS: VirusTotal report found (${vtData.stats?.malicious || 0} detections)`);
+            if (vtData.found) {
+              emitAnalysisEvent(onEvent, 100, `SUCCESS: VirusTotal report found (${vtData.stats?.malicious || 0} detections)`);
+            } else {
+              emitAnalysisEvent(onEvent, 100, `WARN: VirusTotal issue: ${vtData.vtError || "Report not found"}`);
+            }
+          } else {
+            const errBody = await vtRes.json().catch(() => ({}));
+            emitAnalysisEvent(onEvent, 100, `WARN: VirusTotal API rejected request (HTTP ${vtRes.status}): ${errBody.vtError || "Check API Key"}`);
           }
         } catch (err) {
           emitAnalysisEvent(onEvent, 100, "ERROR: VirusTotal integration failed");
