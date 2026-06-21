@@ -18,7 +18,6 @@ export const metadata: Metadata = {
     google: '-voCn8AtdQ6QlPwfn1gTAN5Zc2Xn_L9pZ6aIMKuSros',
   },
 };
-Once you replace it and h
 
 import { Analytics } from "@vercel/analytics/next";
 
