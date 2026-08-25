@@ -11,6 +11,8 @@ interface UploadZoneProps {
   isAnalyzing: boolean;
   fileName?: string | null;
   fileSize?: number | null;
+  /** Collapse the 300px dropzone into a slim file bar so the analysis stays in view. */
+  compact?: boolean;
 }
 
 function formatBytes(bytes: number): string {
@@ -20,7 +22,7 @@ function formatBytes(bytes: number): string {
   return `${(bytes / Math.pow(1024, i)).toFixed(i === 0 ? 0 : 1)} ${units[i]}`;
 }
 
-export default function UploadZone({ onFileSelected, isAnalyzing, fileName, fileSize }: UploadZoneProps) {
+export default function UploadZone({ onFileSelected, isAnalyzing, fileName, fileSize, compact = false }: UploadZoneProps) {
   const [isDragging, setIsDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -44,6 +46,59 @@ export default function UploadZone({ onFileSelected, isAnalyzing, fileName, file
     [handleFile, isAnalyzing]
   );
 
+  const fileInput = (
+    <input
+      ref={inputRef}
+      type="file"
+      accept=".apk"
+      onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }}
+      style={{ display: "none" }}
+    />
+  );
+
+  // Compact bar: shown once a file is loaded, so the progress log and the
+  // threat report stay above the fold instead of being pushed off-screen.
+  if (compact) {
+    return (
+      <div
+        onDragOver={(e) => { e.preventDefault(); if (!isAnalyzing) setIsDragging(true); }}
+        onDragLeave={(e) => { e.preventDefault(); setIsDragging(false); }}
+        onDrop={onDrop}
+        onClick={() => !isAnalyzing && inputRef.current?.click()}
+        role="button"
+        tabIndex={0}
+        className={`border rounded-lg px-lg py-md flex items-center gap-md transition-interactive ${
+          isAnalyzing ? "cursor-default border-primary/40 bg-primary/5" : "cursor-pointer border-outline-variant/50 bg-surface-container-lowest hover:bg-surface-container-low"
+        } ${isDragging ? "border-primary bg-primary/5" : ""}`}
+      >
+        {fileInput}
+
+        <span
+          className={`material-symbols-outlined text-[22px] text-primary ${isAnalyzing ? "animate-pulse" : ""}`}
+          style={{ fontVariationSettings: isAnalyzing ? "'FILL' 1" : undefined }}
+        >
+          {isAnalyzing ? "sync" : "android"}
+        </span>
+
+        <div className="flex-1" style={{ minWidth: 0 }}>
+          <div className="font-label-mono text-on-surface truncate" style={{ fontSize: "0.85rem", fontWeight: 600 }}>
+            {fileName ?? "APK"}
+          </div>
+          <div className="font-mono-base text-on-surface-variant" style={{ fontSize: "0.68rem" }}>
+            {fileSize ? formatBytes(fileSize) : ""}
+            {isAnalyzing ? " · static reverse-engineering pipeline running…" : " · click or drop another APK to re-analyze"}
+          </div>
+        </div>
+
+        {isAnalyzing && (
+          <span className="font-label-mono text-primary" style={{ fontSize: "0.7rem", letterSpacing: "0.08em" }}>
+            ANALYZING
+          </span>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div
       onDragOver={(e) => { e.preventDefault(); if (!isAnalyzing) setIsDragging(true); }}
@@ -58,13 +113,7 @@ export default function UploadZone({ onFileSelected, isAnalyzing, fileName, file
           : "border-outline-variant/50 bg-surface-container-lowest/50 hover:bg-surface-container-low"
       }`}
     >
-      <input
-        ref={inputRef}
-        type="file"
-        accept=".apk"
-        onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }}
-        style={{ display: "none" }}
-      />
+      {fileInput}
 
       <div className={`w-24 h-24 rounded-full flex items-center justify-center mb-md transition-interactive ${
         isAnalyzing ? "bg-primary/20" : "bg-primary/10 group-hover:scale-110"
