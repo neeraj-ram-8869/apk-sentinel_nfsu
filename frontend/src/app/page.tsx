@@ -183,6 +183,7 @@ export default function Home() {
   const [chatHistory, setChatHistory] = useState<{ role: "user" | "assistant"; text: string }[]>([]);
   const [chatLoading, setChatLoading] = useState(false);
   const logRef = useRef<HTMLDivElement>(null);
+  const runIdRef = useRef(0);
 
   const [policyWeights, setPolicyWeights] = useState({
     sysAlert: 20, sms: 18, dex: 12, cert: 8
@@ -231,6 +232,11 @@ export default function Home() {
 
   // ── Run analysis pipeline ──────────────────────────────────────
   const runAnalysis = useCallback(async (file: File, mockResult?: AnalyzedApkResult) => {
+    // Token for this run. Reset (or a newer scan) bumps it, so an in-flight
+    // pipeline that finishes afterwards can't repopulate the cleared view.
+    const runId = ++runIdRef.current;
+    const stale = () => runIdRef.current !== runId;
+
     setLogs([]);
     setAnalysisResult(null);
     setAiNarrative("");
@@ -254,14 +260,16 @@ export default function Home() {
           "Analysis complete. Generating threat matrix.",
         ];
         for (let i = 0; i < mockLogs.length; i++) {
+          if (stale()) return;
           setLogs(prev => [...prev, { pct: Math.round(((i + 1) / mockLogs.length) * 100), message: mockLogs[i], level: "info" }]);
           await new Promise(r => setTimeout(r, 350));
         }
         result = mockResult;
       } else {
-        result = await analyzeFile(file, (evt) => setLogs(prev => [...prev, evt]));
+        result = await analyzeFile(file, (evt) => { if (!stale()) setLogs(prev => [...prev, evt]); });
       }
 
+      if (stale()) return;
       setAnalysisResult(result);
       setPhase("complete");
 
@@ -314,15 +322,18 @@ export default function Home() {
           stringCount: result.allStrings.length,
         };
         const narrativeRes = await generateThreatNarrative(buildNarrativePayload(profileData));
+        if (stale()) return;
         setAiNarrative(narrativeRes.text);
         addToast("success", "AI Narrative Ready", "NVIDIA NIM threat report generated");
       } catch {
+        if (stale()) return;
         setAiNarrative("NVIDIA NIM: Unable to generate narrative. API key may not be configured.");
         addToast("warning", "AI Fallback Used", "NVIDIA NIM key not configured");
       } finally {
-        setAiLoading(false);
+        if (!stale()) setAiLoading(false);
       }
     } catch (err: any) {
+      if (stale()) return;
       setLogs(prev => [...prev, { pct: 100, message: `FATAL: ${err.message}`, level: "error" }]);
       addToast("error", "Analysis Failed", err.message);
       setPhase("idle");
@@ -332,6 +343,23 @@ export default function Home() {
   const handleFileUpload = useCallback(async (file: File) => {
     await runAnalysis(file);
   }, [runAnalysis]);
+
+  // "New Scan" / "Scan APK" must clear the previous run, otherwise the scanner
+  // opens still showing the finished report. Sidebar navigation deliberately
+  // does NOT reset — you should be able to leave the report and come back.
+  const resetScan = useCallback(() => {
+    runIdRef.current++; // abandon any in-flight pipeline
+    setActiveNav("APK Scanner");
+    setPhase("idle");
+    setAnalysisResult(null);
+    setCurrentFile(null);
+    setLogs([]);
+    setAiNarrative("");
+    setAiLoading(false);
+    setChatHistory([]);
+    setChatInput("");
+    setExpandedSeverity(null);
+  }, []);
 
   const handleDemoUpload = useCallback(async (type: "good" | "bad") => {
     const isBad = type === "bad";
@@ -508,7 +536,7 @@ export default function Home() {
       {/* TopNavBar (Mobile only) */}
       <header className="fixed top-0 w-full z-50 flex justify-between items-center px-lg h-16 bg-surface-bright border-b border-outline-variant md:hidden">
         <div className="font-headline-md text-headline-md font-bold tracking-tight text-primary">APK SENTINEL</div>
-        <button onClick={() => setActiveNav("APK Scanner")} className="bg-primary text-on-primary font-label-mono text-label-mono px-md py-xs rounded hover:bg-primary-container transition-colors">
+        <button onClick={resetScan} className="bg-primary text-on-primary font-label-mono text-label-mono px-md py-xs rounded hover:bg-primary-container transition-colors">
           Scan APK
         </button>
       </header>
@@ -518,7 +546,7 @@ export default function Home() {
         <div key={activeNav} className="animate-view flex-1 flex flex-col">
 
           {activeNav === "Dashboard" && (
-            <DashboardView ledger={ledger} onNavigate={() => setActiveNav("APK Scanner")} />
+            <DashboardView ledger={ledger} onNavigate={resetScan} />
           )}
 
           {activeNav === "APK Scanner" && (
@@ -542,6 +570,7 @@ export default function Home() {
               onFileSelected={handleFileUpload}
               onDemoUpload={handleDemoUpload}
               onDownloadPdf={handleDownloadPdf}
+              onNewScan={resetScan}
             />
           )}
 
@@ -600,7 +629,7 @@ export default function Home() {
 function ScannerView({
   isAnalyzing, phase, currentFile, logs, logRef, analysisResult, scoreData,
   riskScore, riskTier, critCount, highCount, medCount, lowCount, totalIssues,
-  expandedSeverity, setExpandedSeverity, onFileSelected, onDemoUpload, onDownloadPdf,
+  expandedSeverity, setExpandedSeverity, onFileSelected, onDemoUpload, onDownloadPdf, onNewScan,
 }: any) {
   const stageRef = useRef<HTMLDivElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
@@ -639,6 +668,19 @@ function ScannerView({
           fileSize={currentFile?.size}
           compact={compact}
         />
+
+        {phase === "complete" && (
+          <div className="flex justify-end">
+            <button
+              onClick={onNewScan}
+              className="border border-outline-variant/50 text-primary font-label-mono px-md py-xs rounded hover:bg-primary/5 transition-colors flex items-center"
+              style={{ fontSize: "0.72rem" }}
+            >
+              <span className="material-symbols-outlined mr-xs text-[16px]">restart_alt</span>
+              New Scan
+            </button>
+          </div>
+        )}
 
         {phase === "idle" && (
           <div className="flex justify-center gap-md mt-sm">
