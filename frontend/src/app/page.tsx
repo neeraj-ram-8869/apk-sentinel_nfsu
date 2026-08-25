@@ -16,6 +16,7 @@ import AnalysisTimeline, { buildStagesFromProfile } from "@/components/AnalysisT
 import ScoreBreakdown from "@/components/ScoreBreakdown";
 import ToastContainer, { type ToastItem } from "@/components/Toast";
 import UploadZone from "@/components/UploadZone";
+import AnimatedCount from "@/components/AnimatedCount";
 
 // -- v3.0 Components --
 import DashboardView from "@/components/DashboardView";
@@ -157,28 +158,7 @@ const ScoreArc = ({ score, tier }: { score: number; tier: string }) => {
   );
 };
 
-// ─────────────────────────────────────────────────────────────────
-// Animated counter
-// ─────────────────────────────────────────────────────────────────
-const AnimatedCount = ({ value, duration = 800 }: { value: number; duration?: number }) => {
-  const [display, setDisplay] = useState(0);
-  const prevRef = useRef(0);
-  useEffect(() => {
-    const start = prevRef.current;
-    const end = value;
-    const startTime = performance.now();
-    const tick = (now: number) => {
-      const elapsed = now - startTime;
-      const t = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - t, 3);
-      setDisplay(Math.round(start + (end - start) * eased));
-      if (t < 1) requestAnimationFrame(tick);
-      else prevRef.current = end;
-    };
-    requestAnimationFrame(tick);
-  }, [value, duration]);
-  return <>{display}</>;
-};
+// Animated counter lives in @/components/AnimatedCount (imported above).
 
 // ─────────────────────────────────────────────────────────────────
 // Main component
@@ -188,6 +168,9 @@ export default function Home() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const { analyzeFile, isAnalyzing } = useAnalysis();
   const [analysisResult, setAnalysisResult] = useState<AnalyzedApkResult | null>(null);
+  // Explicit pipeline phase. `isAnalyzing` from useAnalysis only covers the real
+  // parser path, so the demo/mock runs would otherwise never show a busy state.
+  const [phase, setPhase] = useState<"idle" | "analyzing" | "complete">("idle");
   const [currentFile, setCurrentFile] = useState<{ name: string; size: number } | null>(null);
   const [logs, setLogs] = useState<AnalysisEvent[]>([]);
   const [aiNarrative, setAiNarrative] = useState<string>("");
@@ -253,6 +236,7 @@ export default function Home() {
     setAiNarrative("");
     setChatHistory([]);
     setActiveNav("APK Scanner");
+    setPhase("analyzing");
     setCurrentFile({ name: file.name, size: file.size });
     addToast("info", "Analysis Started", `Scanning ${file.name}`);
 
@@ -279,6 +263,7 @@ export default function Home() {
       }
 
       setAnalysisResult(result);
+      setPhase("complete");
 
       const input: ScoringInput = {
         permissions: result.manifest.permissions,
@@ -340,6 +325,7 @@ export default function Home() {
     } catch (err: any) {
       setLogs(prev => [...prev, { pct: 100, message: `FATAL: ${err.message}`, level: "error" }]);
       addToast("error", "Analysis Failed", err.message);
+      setPhase("idle");
     }
   }, [analyzeFile, policyWeights, addToast]);
 
@@ -537,7 +523,8 @@ export default function Home() {
 
           {activeNav === "APK Scanner" && (
             <ScannerView
-              isAnalyzing={isAnalyzing}
+              isAnalyzing={isAnalyzing || phase === "analyzing"}
+              phase={phase}
               currentFile={currentFile}
               logs={logs}
               logRef={logRef}
@@ -611,10 +598,36 @@ export default function Home() {
 // SCANNER VIEW
 // ─────────────────────────────────────────────────────────────────
 function ScannerView({
-  isAnalyzing, currentFile, logs, logRef, analysisResult, scoreData,
+  isAnalyzing, phase, currentFile, logs, logRef, analysisResult, scoreData,
   riskScore, riskTier, critCount, highCount, medCount, lowCount, totalIssues,
   expandedSeverity, setExpandedSeverity, onFileSelected, onDemoUpload, onDownloadPdf,
 }: any) {
+  const stageRef = useRef<HTMLDivElement>(null);
+  const resultsRef = useRef<HTMLDivElement>(null);
+
+  const compact = phase !== "idle";
+  const lastLog = logs.length ? logs[logs.length - 1] : null;
+  const pct = lastLog?.pct ?? 0;
+  const currentStage = lastLog?.message ?? "Queueing static analysis engine…";
+
+  // Pull the user into the live pipeline the moment a scan starts…
+  useEffect(() => {
+    if (phase === "analyzing") {
+      stageRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [phase]);
+
+  // …and into the threat report the moment it exists.
+  useEffect(() => {
+    if (phase === "complete" && analysisResult) {
+      const timer = window.setTimeout(
+        () => resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
+        150
+      );
+      return () => window.clearTimeout(timer);
+    }
+  }, [phase, analysisResult]);
+
   return (
     <div className="flex flex-col gap-5 w-full">
       {/* Upload zone */}
@@ -624,9 +637,10 @@ function ScannerView({
           isAnalyzing={isAnalyzing}
           fileName={currentFile?.name}
           fileSize={currentFile?.size}
+          compact={compact}
         />
-        
-        {!isAnalyzing && !analysisResult && (
+
+        {phase === "idle" && (
           <div className="flex justify-center gap-md mt-sm">
             <button className="bg-[#ECFDF5] text-[#047857] border border-[#047857] font-label-mono text-[13px] px-lg py-sm rounded-lg hover:bg-[#D1FAE5] transition-colors flex items-center shadow-sm" onClick={() => onDemoUpload("good")}>
               <span className="material-symbols-outlined mr-xs text-[18px]">verified</span>
@@ -639,22 +653,37 @@ function ScannerView({
           </div>
         )}
 
-        {/* Live log */}
+        {/* Live pipeline: expands while analyzing, collapses back to a log tail once done */}
         {(isAnalyzing || logs.length > 0) && (
-          <div ref={logRef} className="bg-[#1d1a24] text-[#d3bbff] font-code-sm text-code-sm rounded p-md overflow-x-auto border border-[#38485d]" style={{ maxHeight: 90, padding: "10px 16px" }}>
-            {logs.map((l: any, i: number) => (
-              <div key={`log-${i}`} style={{ color: l.level === "error" ? "var(--accent-red)" : l.level === "warning" ? "var(--accent-yellow)" : l.level === "success" ? "var(--accent-green)" : "#1A7F4B" }}>
-                <span style={{ opacity: 0.5, marginRight: 8 }}>[{l.pct}%]</span>{l.message}
+          <div ref={stageRef} className="flex flex-col gap-sm" style={{ scrollMarginTop: 80 }}>
+            {isAnalyzing && (
+              <div className="bg-surface-container-lowest border border-outline-variant rounded p-lg flex flex-col gap-sm">
+                <div className="flex justify-between items-baseline">
+                  <h2 className="font-headline-sm text-headline-sm text-on-surface">Analyzing APK</h2>
+                  <span className="font-label-mono text-primary" style={{ fontSize: "0.8rem", fontWeight: 700 }}>{pct}%</span>
+                </div>
+                <div style={{ height: 6, background: "rgba(15,23,42,0.08)", borderRadius: 999, overflow: "hidden" }}>
+                  <div style={{ width: `${pct}%`, height: "100%", background: "var(--accent-cyan, #5300B7)", borderRadius: 999, transition: "width 0.35s ease" }} />
+                </div>
+                <p className="text-on-surface-variant font-code-sm" style={{ fontSize: "0.72rem" }}>{currentStage}</p>
               </div>
-            ))}
-            {isAnalyzing && <div style={{ color: "var(--accent-cyan)" }}>▌<span className="blink">_</span></div>}
+            )}
+
+            <div ref={logRef} className="bg-[#1d1a24] text-[#d3bbff] font-code-sm text-code-sm rounded p-md overflow-x-auto border border-[#38485d]" style={{ maxHeight: isAnalyzing ? 220 : 90, padding: "10px 16px", transition: "max-height 0.3s ease" }}>
+              {logs.map((l: any, i: number) => (
+                <div key={`log-${i}`} style={{ color: l.level === "error" ? "var(--accent-red)" : l.level === "warning" ? "var(--accent-yellow)" : l.level === "success" ? "var(--accent-green)" : "#1A7F4B" }}>
+                  <span style={{ opacity: 0.5, marginRight: 8 }}>[{l.pct}%]</span>{l.message}
+                </div>
+              ))}
+              {isAnalyzing && <div style={{ color: "var(--accent-cyan)" }}>▌<span className="blink">_</span></div>}
+            </div>
           </div>
         )}
       </div>
 
       {/* Results grid */}
       {analysisResult && (
-        <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gridTemplateRows: "auto auto", gap: 20 }}>
+        <div ref={resultsRef} style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gridTemplateRows: "auto auto", gap: 20, scrollMarginTop: 80 }}>
 
           {/* ── Risk Score card ── */}
           <div className="bg-surface-container-lowest border border-outline-variant rounded p-lg flex flex-col transition-colors hover:border-primary" style={{ minHeight: 380 }}>
