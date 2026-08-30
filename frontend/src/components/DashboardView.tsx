@@ -2,7 +2,7 @@
 
 import React from "react";
 
-export default function DashboardView({ ledger, onNavigate }: { ledger: any[], onNavigate: () => void }) {
+export default function DashboardView({ ledger, onNavigate, onOpenScan }: { ledger: any[], onNavigate: () => void, onOpenScan?: (id: string) => void }) {
   const threatsFound = ledger.reduce((acc, l) => acc + (l.result?.analysis?.findings?.filter((f: any) => f.severity === "CRITICAL" || f.severity === "HIGH")?.length || 0), 0);
   const avgRisk = ledger.length > 0 ? Math.round(ledger.reduce((acc, l) => acc + (l.result?.riskScore || 0), 0) / ledger.length) : 0;
   const cleanApks = ledger.filter(l => l.result?.riskScore < 30).length;
@@ -100,7 +100,18 @@ export default function DashboardView({ ledger, onNavigate }: { ledger: any[], o
         ) : (
           <div className="space-y-4">
             {ledger.map((entry, idx) => (
-              <div key={idx} className="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 flex justify-between items-center hover:border-primary transition-colors cursor-pointer group">
+              <div
+                key={entry.id ?? idx}
+                onClick={() => entry.id && onOpenScan?.(entry.id)}
+                role={entry.id && onOpenScan ? "button" : undefined}
+                tabIndex={entry.id && onOpenScan ? 0 : undefined}
+                onKeyDown={(e) => {
+                  if (entry.id && onOpenScan && (e.key === "Enter" || e.key === " ")) {
+                    e.preventDefault();
+                    onOpenScan(entry.id);
+                  }
+                }}
+                className="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 flex justify-between items-center hover:border-primary transition-colors cursor-pointer group focus:outline-none focus-visible:ring-2 focus-visible:ring-primary">
                 <div className="flex items-center gap-4">
                   <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
                     entry.result?.riskTier === "CRITICAL" ? "bg-error/10 text-error" :
