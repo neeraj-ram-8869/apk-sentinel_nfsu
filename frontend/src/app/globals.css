@@ -596,3 +596,110 @@ input[type="checkbox"] {
 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
 .custom-scrollbar::-webkit-scrollbar-thumb { background-color: rgba(147, 197, 253, 0.2); border-radius: 20px; }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: rgba(147, 197, 253, 0.5); }
+
+/* ===================================================================
+   Phone layout for the threat report.
+
+   The console was built for a desktop grid: a 1.4fr/1fr report grid with a
+   fixed 280px score arc and a 240px DNA ring inside it. On a 375px screen
+   that forced 861px of grid track into a 311px box, so the report spilled
+   out of its own container. Everything below stacks it into one column and
+   lets the two circular graphics scale.
+   =================================================================== */
+
+.report-grid {
+  display: grid;
+  /* minmax(0, 1fr), not 1fr: grid items default to min-width:auto, so a card
+     whose min-content is wider than the phone expands the track and the whole
+     report spills out of its container. */
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  --report-col-a: auto;
+  --report-col-b: auto;
+}
+
+/* Same reason, one level down. */
+.report-grid > * { min-width: 0; }
+.report-grid * { max-width: 100%; }
+
+.risk-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+/* The arc drives the card's height, so it scales with the viewport instead
+   of pinning 280px on a screen that is 375px wide. */
+.score-arc-wrap {
+  position: relative;
+  width: min(280px, 68vw);
+  height: min(280px, 68vw);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.score-arc-wrap > svg { width: 100%; height: 100%; }
+
+.dna-row {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+}
+.dna-row > * { min-width: 0; }
+
+/* Wide content must scroll inside itself rather than widening the page. */
+.report-grid pre,
+.report-grid table {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+@media (min-width: 768px) {
+  .report-grid {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    gap: 20px;
+    --report-col-a: 1 / 2;
+    --report-col-b: 2 / 3;
+  }
+  .risk-row {
+    flex-direction: row;
+    align-items: center;
+    gap: 32px;
+  }
+  .dna-row {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 24px;
+  }
+}
+
+/* Touch targets: 44px is the smallest reliably tappable size. */
+@media (max-width: 767px) {
+  main button,
+  main [role="button"] { min-height: 44px; }
+}
+
+/* The mobile view switcher scrolls horizontally; its own scrollbar would sit
+   across the chips on desktop-class browsers, so hide it and keep the scroll. */
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* The DNA ring is rendered at a fixed 240px. Let it shrink on narrow screens
+   rather than pushing the card wider than the viewport. */
+.dna-row svg { max-width: 100%; height: auto; }
+
+/* This file defines its own .flex-col { display: flex } utility (see above),
+   which collides with Tailwind's .hidden at equal specificity and wins by
+   source order. The sidebar carries both classes ("flex-col ... hidden
+   md:flex"), so on a phone it stayed visible and a fixed 256px panel sat on
+   top of a 375px screen — the single worst thing about the mobile layout.
+
+   Element+class beats the bare utility, and scoping it to the phone range
+   leaves md:flex to restore the sidebar on desktop untouched. */
+@media (max-width: 767px) {
+  nav.hidden { display: none; }
+}

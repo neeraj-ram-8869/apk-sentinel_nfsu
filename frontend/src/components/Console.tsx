@@ -645,8 +645,35 @@ export default function Console({ initialView = "Dashboard", scanId }: ConsolePr
         </button>
       </header>
 
+      {/* Mobile view switcher.
+          The sidebar is hidden below md, which left every panel except the
+          scanner unreachable on a phone. A scrolling chip row is the cheapest
+          honest replacement for a ten-item sidebar on a 375px screen. */}
+      <div className="md:hidden fixed top-16 w-full z-40 bg-surface-bright border-b border-outline-variant overflow-x-auto no-scrollbar">
+        <div className="flex gap-xs px-lg py-sm" style={{ width: "max-content" }}>
+          {NAV_ITEMS.map(item => {
+            const isActive = activeNav === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => navigate(item.id)}
+                aria-current={isActive ? "page" : undefined}
+                className={`whitespace-nowrap rounded-full px-md py-xs font-label-mono transition-colors ${
+                  isActive
+                    ? "bg-primary text-on-primary"
+                    : "bg-surface-container-low text-on-surface-variant border border-outline-variant"
+                }`}
+                style={{ fontSize: "0.72rem", minHeight: 36 }}
+              >
+                {item.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Main Canvas */}
-      <main className="flex-1 ml-0 md:ml-64 pt-16 md:pt-0 min-h-screen px-container-margin py-xl flex flex-col max-w-[1600px] mx-auto w-full">
+      <main className="flex-1 ml-0 md:ml-64 pt-32 md:pt-0 min-h-screen px-container-margin py-xl flex flex-col max-w-[1600px] mx-auto w-full">
         <div key={activeNav} className="animate-view flex-1 flex flex-col">
 
           {activeNav === "Dashboard" && (
@@ -863,7 +890,7 @@ function ScannerView({
 
       {/* Results grid */}
       {analysisResult && (
-        <div ref={resultsRef} style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gridTemplateRows: "auto auto", gap: 20, scrollMarginTop: 80 }}>
+        <div ref={resultsRef} className="report-grid" style={{ scrollMarginTop: 80 }}>
 
           {/* ── Risk Score card ── */}
           <div className="bg-surface-container-lowest border border-outline-variant rounded p-lg flex flex-col transition-colors hover:border-primary" style={{ minHeight: 380 }}>
@@ -887,9 +914,9 @@ function ScannerView({
                 <button className="bg-primary text-on-primary font-label-mono text-label-mono px-lg py-sm rounded hover:bg-primary-container transition-colors" onClick={onDownloadPdf}>↓ PDF Report</button>
               </div>
             </div>
-            <div className="flex items-center gap-8 flex-1">
+            <div className="risk-row flex-1">
               {/* Arc + score */}
-              <div style={{ position: "relative", width: 280, height: 280, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div className="score-arc-wrap">
                 <ScoreArc score={riskScore} tier={riskTier} />
                 <div style={{ position: "absolute", textAlign: "center" }}>
                   <div className="text-on-surface-variant font-code-sm" style={{ fontSize: "0.68rem", marginBottom: 4 }}>RISK SCORE</div>
@@ -1026,14 +1053,14 @@ function ScannerView({
           </div>
 
           {/* ── DNA Fingerprint + Score Breakdown ── */}
-          <div className="bg-surface-container-lowest border border-outline-variant rounded p-lg flex flex-col transition-colors hover:border-primary" style={{ gridColumn: "1 / 2" }}>
+          <div className="bg-surface-container-lowest border border-outline-variant rounded p-lg flex flex-col transition-colors hover:border-primary" style={{ gridColumn: "var(--report-col-a)" }}>
             <div className="flex justify-between items-center mb-4">
               <div>
                 <h2 className="font-headline-sm text-headline-sm text-on-surface">DNA Fingerprint</h2>
                 <p className="text-on-surface-variant font-code-sm" style={{ fontSize: "0.7rem" }}>Composite threat signal visualization</p>
               </div>
             </div>
-            <div className="flex gap-6">
+            <div className="dna-row">
               <div className="flex-col items-center" style={{ flexShrink: 0 }}>
                 <DnaFingerprint
                   verdict={riskTier as any}
@@ -1058,7 +1085,7 @@ function ScannerView({
           </div>
 
           {/* ── Analysis Timeline ── */}
-          <div className="bg-surface-container-lowest border border-outline-variant rounded p-lg flex flex-col transition-colors hover:border-primary" style={{ gridColumn: "2 / 3" }}>
+          <div className="bg-surface-container-lowest border border-outline-variant rounded p-lg flex flex-col transition-colors hover:border-primary" style={{ gridColumn: "var(--report-col-b)" }}>
             <div className="flex justify-between items-center mb-4">
               <div>
                 <h2 className="font-headline-sm text-headline-sm text-on-surface">Analysis Pipeline</h2>
